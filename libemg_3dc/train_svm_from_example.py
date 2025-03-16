@@ -25,8 +25,8 @@ def train_SVM_classifier(train_features, train_metadata, test_features, test_met
 
     svm_classifier = EMGClassifier(None)
     svm_classifier.model = CalibratedClassifierCV(estimator=SGDClassifier(loss="hinge", max_iter=1000, tol=1e-3), cv=5)
-
     # svm_classifier = EMGClassifier('SVM', model_parameters={"kernel": "linear", "probability": True, "random_state": 0, "verbose": False, "cache_size": 1800})
+
     svm_classifier.fit(feature_dictionary=training_features_dict.copy())
     printd(f'Finished training SVM classifier. Took {(time.perf_counter() - start):.2f}s')
 
