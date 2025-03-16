@@ -1,6 +1,9 @@
 import os
 import sys
+import time
 import sklearn
+from sklearn.linear_model import SGDClassifier
+from sklearn.calibration import CalibratedClassifierCV
 import sklearn.metrics
 from libemg.datasets import *
 from libemg.emg_predictor import EMGClassifier
@@ -14,12 +17,18 @@ from libemg_3dc.utils.stored_features import *
 
 def train_SVM_classifier(train_features, train_metadata, test_features, test_metadata):
     printd('Started training SVM classifier')
+    start = time.perf_counter()
+
     training_features_dict = {}
     training_features_dict['training_features'] = train_features
     training_features_dict['training_labels'] = train_metadata["classes"]
-    svm_classifier = EMGClassifier('SVM', model_parameters={"kernel": "linear", "probability": True, "random_state": 0})
+
+    svm_classifier = EMGClassifier(None)
+    svm_classifier.model = CalibratedClassifierCV(estimator=SGDClassifier(loss="hinge", max_iter=1000, tol=1e-3), cv=5)
+
+    # svm_classifier = EMGClassifier('SVM', model_parameters={"kernel": "linear", "probability": True, "random_state": 0, "verbose": False, "cache_size": 1800})
     svm_classifier.fit(feature_dictionary=training_features_dict.copy())
-    printd('Finished training SVM classifier')
+    printd(f'Finished training SVM classifier. Took {(time.perf_counter() - start):.2f}s')
 
     printd('Started predicting with SVM classifier')
     predicted_classes, class_probabilities = svm_classifier.run(test_features)
