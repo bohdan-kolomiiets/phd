@@ -1,3 +1,4 @@
+import os
 from libemg.datasets import *
 import torch
 from torch.utils.data import DataLoader
@@ -18,14 +19,16 @@ class DL_input_data(Dataset):
     def __len__(self):
         return self.data.shape[0]
 
-def make_data_loader(windows, classes, batch_size=64):
+def make_data_loader(windows, classes, batch_size=64, generator=None):
     # first we make the object that holds the data
     obj = DL_input_data(windows, classes)
     # and now we make a dataloader with that object
     dl = DataLoader(obj,
     batch_size=batch_size,
     shuffle=True,
-    collate_fn = collate_fn)
+    collate_fn = collate_fn,
+    generator=generator,
+    num_workers=0)
     return dl
 
 def collate_fn(batch):
