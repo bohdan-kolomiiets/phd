@@ -110,7 +110,7 @@ class CNN(nn.Module):
 
     def fit(self, dataloader_dictionary, verbose, checkpoints_path):
 
-        early_stopping = EarlyStopping(patience=4, acceptable_change_percentage=0.02, verbose=True, path=checkpoints_path)
+        early_stopping = EarlyStopping(patience=4, acceptable_change_percentage=0.03, verbose=True, path=checkpoints_path)
 
         optimizer = optim.Adam(self.parameters(), lr=adam_learning_rate, weight_decay=adam_weight_decay)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs, eta_min=adam_learning_rate/100)
@@ -225,6 +225,7 @@ def train_CNN_classifier(train_windows, train_metadata, validate_windows, valida
     # model.load_state_dict(torch.load(f'{get_experiment_name()}.pt'))
     model.fit(dataloader_dictionary, verbose=True, checkpoints_path=f'libemg_3dc/split_by_samples/checkpoints/{get_experiment_name()}.pt')
 
+
     classifier = EMGClassifier(None)
     classifier.model = model
 
@@ -243,11 +244,6 @@ def train_CNN_classifier(train_windows, train_metadata, validate_windows, valida
     # for key in results:
     #     printd(f"{key}: {results[key]}")
 
-def filter_metadata_by_indexes(metadata: dict[str, np.ndarray], indexes: np.ndarray):
-    filtered = {}
-    for key in metadata.keys():
-        filtered[key] = metadata[key][indexes]
-    return filtered
 
 def add_model_graph_to_tensorboard(model, dataloader, tensorboard_writer):
     data, labels = next(iter(dataloader))
@@ -269,7 +265,7 @@ seeds = [0, 1, 7, 42, 123, 1337, 2020, 2023] # to check variance or stability
 
 num_subjects = 22
 
-num_epochs = 20 # 50
+num_epochs = 50
 
 batch_size = 64
 
@@ -290,7 +286,7 @@ def get_experiment_name():
     optimizer_config = f'Adam(learning_rate={adam_learning_rate},weight_decay={adam_weight_decay})'
     # scheduler_config = f'ReduceLROnPlateau(factor={reduceLROnPlateau_factor},patience={reduceLROnPlateau_patience})'
     scheduler_config = f'CosineAnnealingLR(T_max={num_epochs}, eta_min={adam_learning_rate/100})'
-    return f'Split by samples (standartized by train set). subjects={num_subjects},num_epochs={num_epochs},batch_size={batch_size},{optimizer_config},{scheduler_config}'
+    return f'Split by repetition. subjects={num_subjects},num_epochs={num_epochs},batch_size={batch_size},{optimizer_config},{scheduler_config}'
 
 
 if __name__ == "__main__":
@@ -299,34 +295,36 @@ if __name__ == "__main__":
 
     all_subject_ids = list(range(0,num_subjects))
     
-
     # printd('Started fetching data')
     dataset = get_dataset_list()['3DC']()
     odh_full = dataset.prepare_data(subjects=all_subject_ids)
     odh = odh_full['All']
     # printd('Finished fetching data')
 
+    # all_repetition_ids = np.unique(np.concatenate(odh.reps)) # [0, 1, 2, 3]
+    train_measurements = odh.isolate_data("sets",[0])
+    non_train_measurements  = odh.isolate_data("sets",[1])
+    validate_measurements = non_train_measurements.isolate_data("reps",[0, 1])
+    test_measurements = non_train_measurements.isolate_data("reps",[2, 3])
+
+    # apply a standardization: (x - mean)/std
+    # printd('Started applying filters')
+    filter = Filter(sampling_frequency=1000)
+    filter_dic = {
+        "name": "standardize",
+        "data": train_measurements
+    }
+    filter.install_filters(filter_dic)
+    filter.filter(train_measurements)
+    filter.filter(validate_measurements)
+    filter.filter(test_measurements)
+    # printd('Fiinished applying filters')
+
     # perform windowing
     # printd('Started parsing windows')
-    all_windows, all_metadata = odh.parse_windows(200,100)
-    all_sample_indexes = range(len(all_windows))
-    train_sample_indexes, non_sample_indexes = train_test_split(all_sample_indexes, test_size=0.3)
-    validate_sample_indexes, test_sample_indexes = train_test_split(non_sample_indexes, test_size=0.5)
-
-    train_metadata = filter_metadata_by_indexes(all_metadata, train_sample_indexes)
-    train_windows = all_windows[train_sample_indexes]
-    data = np.concatenate(train_windows, axis=1)
-    train_mean_by_channels = np.mean(data,axis=1).reshape(-1, 1)
-    train_std_by_channels  = np.std(data, axis=1).reshape(-1, 1)
-    train_windows = (train_windows - train_mean_by_channels) / train_std_by_channels
-
-    validate_metadata = filter_metadata_by_indexes(all_metadata, validate_sample_indexes)
-    validate_windows = all_windows[validate_sample_indexes]
-    validate_windows = (validate_windows - train_mean_by_channels) / train_std_by_channels
-
-    test_metadata = filter_metadata_by_indexes(all_metadata, test_sample_indexes)
-    test_windows = all_windows[test_sample_indexes]
-    test_windows = (test_windows - train_mean_by_channels) / train_std_by_channels
+    train_windows, train_metadata = train_measurements.parse_windows(200,100)
+    validate_windows, validate_metadata = validate_measurements.parse_windows(200,100)
+    test_windows, test_metadata = test_measurements.parse_windows(200,100)
     # printd('Finished parsing windows')
 
     for experiment in experiments:

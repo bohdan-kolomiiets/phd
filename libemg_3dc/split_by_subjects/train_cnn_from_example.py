@@ -17,9 +17,8 @@ from libemg.emg_predictor import EMGClassifier
 from libemg.offline_metrics import OfflineMetrics
 from libemg.filtering import Filter
 
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if parent_dir not in sys.path:
-    sys.path.insert(0, parent_dir)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from global_utils.print_with_date import printd
 from utils.libemg_deep_learning import make_data_loader
@@ -253,7 +252,7 @@ def set_seed(seed):
 seed = 123
 seeds = [0, 1, 7, 42, 123, 1337, 2020, 2023] # to check variance or stability
 
-num_subjects = 12
+num_subjects = 22
 
 num_epochs = 20 # 50
 
@@ -269,9 +268,6 @@ reduceLROnPlateau_patience=3
 
 
 experiments = [
-    { 'batch_size': 8 },
-    { 'batch_size': 16 },
-    { 'batch_size': 32 },
     { 'batch_size': 64 }
 ]
 
@@ -286,13 +282,13 @@ if __name__ == "__main__":
     
     set_seed(seed)
 
+    all_subject_ids = list(range(0,num_subjects))
+    
     # train_subject_ids = [8, 21, 14, 3, 20, 15, 18, 10, 0, 17, 6, 19, 16, 11, 5]
     # validate_subject_ids = [1, 9, 12]
     # test_subject_ids = [2, 13, 4, 7]
-
-    all_subject_ids = list(range(0,num_subjects))
-    
     train_subject_ids, non_train_subject_ids = train_test_split(all_subject_ids, test_size=0.3)
+    validate_subject_ids, test_subject_ids = train_test_split(non_train_subject_ids, test_size=0.5)
 
     # printd('Started fetching data')
     dataset = get_dataset_list()['3DC']()
@@ -318,7 +314,6 @@ if __name__ == "__main__":
     filter.filter(non_train_subjects)
     # printd('Fiinished applying filters')
 
-    validate_subject_ids, test_subject_ids = train_test_split(non_train_subject_ids, test_size=0.5)
     validate_subjects = non_train_subjects.isolate_data("subjects", validate_subject_ids) 
     test_subjects = non_train_subjects.isolate_data("subjects", test_subject_ids) 
 

@@ -3,12 +3,12 @@ import numpy as np
 import torch
 
 class EarlyStopping:
-    def __init__(self, patience=5, delta_pct=0.0, verbose=False, path='checkpoint.pt'):
+    def __init__(self, patience=5, acceptable_change_percentage=0.0, verbose=False, path='checkpoint.pt'):
         """
         delta_pct (float): Minimum percentage improvement (e.g., 0.01 means 1%).
         """
         self.patience = patience
-        self.delta_pct = delta_pct
+        self.delta_pct = acceptable_change_percentage
         self.verbose = verbose
         self.path = path
         self.counter = 0
