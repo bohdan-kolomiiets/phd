@@ -110,7 +110,8 @@ class CNN(nn.Module):
 
     def fit(self, dataloader_dictionary, verbose, checkpoints_path):
 
-        early_stopping = EarlyStopping(patience=4, acceptable_change_percentage=0.03, verbose=True, path=checkpoints_path)
+        early_stopping = EarlyStopping(patience=4, acceptable_delta=0.03, verbose=True)
+        # model_checkpoint = ModelCheckpoint(checkpoints_path, verbose=False)
 
         optimizer = optim.Adam(self.parameters(), lr=adam_learning_rate, weight_decay=adam_weight_decay)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs, eta_min=adam_learning_rate/100)
@@ -223,7 +224,7 @@ def train_CNN_classifier(train_windows, train_metadata, validate_windows, valida
     # add_model_graph_to_tensorboard(model, train_dataloader, writer)
 
     # model.load_state_dict(torch.load(f'{get_experiment_name()}.pt'))
-    model.fit(dataloader_dictionary, verbose=True, checkpoints_path=f'libemg_3dc/split_by_samples/checkpoints/{get_experiment_name()}.pt')
+    model.fit(dataloader_dictionary, verbose=True, checkpoints_path=f'libemg_3dc/split_by_reps/checkpoints/{get_experiment_name()}.pt')
 
 
     classifier = EMGClassifier(None)

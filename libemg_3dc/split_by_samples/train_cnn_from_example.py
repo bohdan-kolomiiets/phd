@@ -110,7 +110,8 @@ class CNN(nn.Module):
 
     def fit(self, dataloader_dictionary, verbose, checkpoints_path):
 
-        early_stopping = EarlyStopping(patience=4, acceptable_change_percentage=0.02, verbose=True, path=checkpoints_path)
+        early_stopping = EarlyStopping(patience=4, acceptable_delta=0.02, verbose=True)
+        # model_checkpoint = ModelCheckpoint(checkpoints_path, verbose=False)
 
         optimizer = optim.Adam(self.parameters(), lr=adam_learning_rate, weight_decay=adam_weight_decay)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs, eta_min=adam_learning_rate/100)

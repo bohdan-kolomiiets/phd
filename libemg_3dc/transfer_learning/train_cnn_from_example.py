@@ -22,66 +22,84 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 
 from global_utils.print_with_date import printd
 from global_utils.early_stopping import EarlyStopping
+from global_utils.model_checkpoint import ModelCheckpoint
 from utils.libemg_deep_learning import make_data_loader
+
+
+def get_standardization_params(odh):
+    ''' Computes the mean and standard deviation of data contained in an OfflineDataHandler.
+
+    Parameters
+    ----------
+    odh: OfflineDataHandler   
+        The data that parameters will be computed from.
+
+    Returns
+    ------- 
+    mean: np.ndarray
+        channel-wise means.
+    std:  np.ndarray
+        channel-wise standard deviations.
+    '''
+    data = np.concatenate(odh.data)
+    filter_mean = np.mean(data,axis=0)
+    filter_std  = np.std(data, axis=0)
+    assert (filter_std != 0).any()
+    return filter_mean, filter_std
+
+def apply_standardization_params(odh, mean_by_channels, std_by_channels):
+    for record_index in range(len(odh.data)):
+        odh.data[record_index] = (odh.data[record_index] - mean_by_channels) / std_by_channels
+    return odh
 
 
 class CNN(nn.Module):
     def __init__(self, n_output, n_channels, n_samples, n_filters=256, generator=None, tensorboard_writer:SummaryWriter=None):
         super().__init__()
 
+        self.generator = generator
+
         self.tensorboard_writer = tensorboard_writer
+
+        self.n_output = n_output
 
         # let's have 3 convolutional layers that taper off
         l0_filters = n_channels # 10
         l1_filters = n_filters # 64
         l2_filters = n_filters // 2 # 32
         l3_filters = n_filters // 4 # 16
-        # let's manually setup those layers
-        # simple layer 1
-        self.conv1 = nn.Conv1d(l0_filters, l1_filters, kernel_size=5)
-        # Input:  (batch_size, 10, 200) → through conv1 → Output: (batch_size, 64, 196)
-        self.bn1   = nn.BatchNorm1d(l1_filters) # compute mean and variance over all elements and apply normalization, for each of the 64 output channels 
-        # simple layer 2
-        self.conv2 = nn.Conv1d(l1_filters, l2_filters, kernel_size=5)
-        self.bn2   = nn.BatchNorm1d(l2_filters)
-        # simple layer 3
-        self.conv3 = nn.Conv1d(l2_filters, l3_filters, kernel_size=5)
-        self.bn3   = nn.BatchNorm1d(l3_filters)
-        # and we need an activation function:
-        self.act = nn.ReLU()
+        
+        # setup layers
+        self.convolutional_layers = nn.Sequential(
+            nn.Conv1d(l0_filters, l1_filters, kernel_size=5), # Size([batches, 10, 200]) -> Size([batches, 64, 196])
+            nn.BatchNorm1d(l1_filters), # compute mean and variance over all elements and apply normalization, for each of the 64 output channels 
+            nn.ReLU(),
+            nn.Conv1d(l1_filters, l2_filters, kernel_size=5), # Size([batches, 64, 196]) -> Size([batches, 32, 192])
+            nn.BatchNorm1d(l2_filters),
+            nn.ReLU(),
+            nn.Conv1d(l2_filters, l3_filters, kernel_size=5),  # Size([batches, 32, 192]) -> Size([batches, 16, 188])
+            nn.BatchNorm1d(l3_filters),
+            nn.ReLU()
+        )
 
         # now we need to figure out how many neurons we have at the linear layer
         # we can use an example input of the correct shape to find the number of neurons
         example_input = torch.zeros((1, n_channels, n_samples),dtype=torch.float32)
-        conv_output   = self.conv_only(example_input) # Size([1, 16, 188])
+        conv_output   = self.convolutional_layers(example_input) # Size([1, 16, 188])
         size_after_conv = conv_output.view(-1).shape[0] # 16 * 188 = 3008
         # now we can define a linear layer that brings us to the number of classes
-        self.output_layer = nn.Linear(size_after_conv, n_output) # fully connected layer that transforms 3008 inputs to 11 gesture classes
+        self.output_layer = nn.Linear(size_after_conv, self.n_output) # fully connected layer that transforms 3008 inputs to 11 gesture classes
+        
         # and for predict_proba we need a softmax function:
         self.softmax = nn.Softmax(dim=1)
 
-        self.glorot_weight_zero_bias(generator)
+        CNN.initialize_with_glorot_weight_zero_bias(self, generator)
 
         self = CNN._try_move_to_accelerator(self)
         
 
-    def conv_only(self, x):
-        try:
-            x = self.conv1(x) # Size([batches, 10, 200]) -> Size([batches, 64, 196])
-            x = self.bn1(x)
-            x = self.act(x)
-            x = self.conv2(x) # Size([batches, 64, 196]) -> Size([batches, 32, 192])
-            x = self.bn2(x) 
-            x = self.act(x)
-            x = self.conv3(x) # Size([batches, 32, 192]) -> Size([batches, 16, 188])
-            x = self.bn3(x)
-            x = self.act(x)
-        except Exception as ex:
-            printd(ex)
-        return x
-
     def forward(self, x):
-        x = self.conv_only(x) # Size([64, 10, 200]) -> Size([64, 16, 188])
+        x = self.convolutional_layers(x) # Size([64, 10, 200]) -> Size([64, 16, 188])
         x = x.view(x.shape[0],-1) # Size([64, 16, 188]) -> Size([64, 3008])
         # x = self.act(x) # fix: redundant
         x = self.output_layer(x) # Size([64, 3008]) -> Size([64, 11])
@@ -95,25 +113,31 @@ class CNN(nn.Module):
             obj = obj.to(torch.accelerator.current_accelerator())
         return obj
     
-    def glorot_weight_zero_bias(self, generator=None):
+    # TODO: each module has modules() inside, you can make it static and pass any layer to initialize it this way
+    # TODO: during training try to call this method with layer passed and check if it will reset it 
+    # TODO: compare with calling module.reset_parameters() before calling glorot_weight_zero_bias
+    # TODO: rename this emthod?
+    @staticmethod
+    def initialize_with_glorot_weight_zero_bias(module, generator=None):
         """
         Based on
         https://robintibor.github.io/braindecode/source/braindecode.torch_ext.html#module-braindecode.torch_ext.init
+        Initalize parameters of all modules by initializing weights with glorot uniform/xavier initialization, and setting biases to zero. Weights from batch norm layers are set to 1.
         """
-        for module in self.modules():
-            if hasattr(module, "weight"):
-                if not ("BatchNorm" in module.__class__.__name__):
-                    nn.init.xavier_uniform_(module.weight, gain=1, generator=generator)
+        for sum_module in module.modules():
+            if hasattr(sum_module, "weight"):
+                if not ("BatchNorm" in sum_module.__class__.__name__):
+                    nn.init.xavier_uniform_(sum_module.weight, gain=1, generator=generator)
                 else:
-                    nn.init.constant_(module.weight, 1)
-            if hasattr(module, "bias"):
-                if module.bias is not None:
-                    nn.init.constant_(module.bias, 0)
+                    nn.init.constant_(sum_module.weight, 1)
+            if hasattr(sum_module, "bias"):
+                if sum_module.bias is not None:
+                    nn.init.constant_(sum_module.bias, 0)
 
 
-    def fit(self, dataloader_dictionary, verbose, checkpoints_path):
+    def fit(self, dataloader_dictionary, verbose, model_checkpoint: ModelCheckpoint):
 
-        early_stopping = EarlyStopping(patience=4, acceptable_change_percentage=0.03, verbose=True, path=checkpoints_path)
+        early_stopping = EarlyStopping(patience=4, acceptable_delta=0.03, verbose=True)
 
         optimizer = optim.Adam(self.parameters(), lr=adam_learning_rate, weight_decay=adam_weight_decay)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs, eta_min=adam_learning_rate/100)
@@ -137,7 +161,9 @@ class CNN(nn.Module):
                 loss = loss_function(output, labels) # labels.shape == Size([64])
                 loss.backward()
                 optimizer.step()
-                acc = sum(torch.argmax(output,1) == labels)/labels.shape[0]
+                # acc = sum(torch.argmax(output, dim=1) == labels)/labels.shape[0]
+                acc = (torch.argmax(output, dim=1) == labels).float().mean()
+
                 # log it
                 self.log["training_loss"] += [(epoch, loss.item())]
                 self.log["training_accuracy"] += [(epoch, acc.item())]
@@ -149,7 +175,8 @@ class CNN(nn.Module):
                 labels = CNN._try_move_to_accelerator(labels)
                 output = self.forward(data)
                 loss = loss_function(output, labels)
-                acc = sum(torch.argmax(output,1) == labels)/labels.shape[0]
+                # acc = sum(torch.argmax(output,1) == labels)/labels.shape[0]
+                acc = (torch.argmax(output, dim=1) == labels).float().mean()
                 # log it
                 self.log["validation_loss"] += [(epoch, loss.item())]
                 self.log["validation_accuracy"] += [(epoch, acc.item())]
@@ -178,7 +205,9 @@ class CNN(nn.Module):
             scheduler.step(epoch_valoss)
             print("Current LR:", scheduler.get_last_lr())
 
-            early_stopping(epoch_valoss, self)
+            model_checkpoint.save_if_better(epoch_valoss, self)
+
+            early_stopping(epoch_valoss)
             if early_stopping.early_stop:
                 print("Early stopping")
                 break
@@ -198,54 +227,43 @@ class CNN(nn.Module):
             x = torch.tensor(x, dtype=torch.float32)
         x = CNN._try_move_to_accelerator(x)
         y = self.forward(x)
+        y = self.softmax(y)
         return y.cpu().detach().numpy()
-
-
-def train_CNN_classifier(train_windows, train_metadata, validate_windows, validate_metadata, test_windows, test_metadata):
-
-    generator = torch.Generator()
-    generator.manual_seed(seed)
-
-    writer_log_dir=os.path.join("tensorboard", 'libemg_3dc', get_experiment_name())
-    if os.path.exists(writer_log_dir):
-        shutil.rmtree(writer_log_dir)
-    writer = SummaryWriter(writer_log_dir)
-
-    n_output = len(np.unique(np.vstack(train_metadata['classes'])))
-    n_channels = train_windows.shape[1]
-    n_samples = train_windows.shape[2]
-    model = CNN(n_output, n_channels, n_samples, n_filters = batch_size, generator=generator, tensorboard_writer=writer)
-
-    train_dataloader = make_data_loader(train_windows, train_metadata["classes"], batch_size=batch_size, generator=generator)
-    valid_dataloader = make_data_loader(validate_windows, validate_metadata["classes"], batch_size=batch_size, generator=generator)
-    dataloader_dictionary = {
-        "training_dataloader": train_dataloader,
-        "validation_dataloader": valid_dataloader
-        }
     
-    # add_model_graph_to_tensorboard(model, train_dataloader, writer)
+    def apply_transfer_strategy(self, strategy):
+        """
+        strategy: 
+            - "finetune_with_fc_reset" (don't freeze any layers, reset FC output layer)
+            - "finetune_without_fc_reset" (don't freeze any layers, no reset)
+            - "feature_extractor_with_fc_reset" (freeze convolutional layers, reset FC output layer) 
+            - "feature_extractor_without_fc_reset" (freeze convolutional layers, no reset)
+        """
+        if strategy == "finetune_with_fc_reset":
+            for parameter in self.parameters():
+                parameter.requires_grad = True
+            self.output_layer = nn.Linear(self.output_layer.in_features, self.n_output) #  Kaiming Uniform for weights, zeros for bias
+            CNN.initialize_with_glorot_weight_zero_bias(self.output_layer, self.generator) # Glorot uniform/xavier for weights, zero for bias
+            self.output_layer = CNN._try_move_to_accelerator(self.output_layer)
+        
+        elif strategy == "finetune_without_fc_reset":
+            for parameter in self.parameters():
+                parameter.requires_grad = True
 
-    # model.load_state_dict(torch.load(f'{get_experiment_name()}.pt'))
-    model.fit(dataloader_dictionary, verbose=True, checkpoints_path=f'libemg_3dc/split_by_samples/checkpoints/{get_experiment_name()}.pt')
+        elif strategy == "feature_extractor_with_fc_reset":
+            for parameter in self.convolutional_layers.parameters():
+                parameter.requires_grad = False
+            self.output_layer = nn.Linear(self.output_layer.in_features, self.n_output) #  Kaiming Uniform for weights, zeros for bias
+            CNN.initialize_with_glorot_weight_zero_bias(self.output_layer, self.generator) # Glorot uniform/xavier for weights, zero for bias
+            self.output_layer = CNN._try_move_to_accelerator(self.output_layer)
 
+        elif strategy == "feature_extractor_without_fc_reset":
+            for parameter in self.convolutional_layers.parameters():
+                parameter.requires_grad = False
 
-    classifier = EMGClassifier(None)
-    classifier.model = model
+        else:
+            raise ValueError("Invalid strategy. Choose: 'finetune', 'feature_extractor', or 'continue_all'.")
 
-    predicted_classes, class_probabilities = classifier.run(test_windows)
-
-    # classification_report = sklearn.metrics.classification_report(y_true=test_metadata['classes'], y_pred=predicted_classes, output_dict=True)
-    # accuracy = classification_report['accuracy']
-    # printd(F'CNN Accuracy: {accuracy:.3f}')
-    # f1_score = classification_report['macro avg']['f1-score']
-    # printd(F'CNN F1-score: {f1_score:.3f}')
-    print(sklearn.metrics.classification_report(y_true=test_metadata['classes'], y_pred=predicted_classes, output_dict=False))
-
-    # om = OfflineMetrics()
-    # metrics = ['CA','AER','INS','REJ_RATE','CONF_MAT','RECALL','PREC','F1']    
-    # results = om.extract_offline_metrics(metrics, y_true=test_metadata['classes'], y_predictions=predicted_classes, null_label=2)
-    # for key in results:
-    #     printd(f"{key}: {results[key]}")
+        return self
 
 
 def add_model_graph_to_tensorboard(model, dataloader, tensorboard_writer):
@@ -263,13 +281,29 @@ def set_seed(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
+def create_tensorboard_writer(folder_path):
+    if os.path.exists(folder_path):
+        shutil.rmtree(folder_path)
+    return SummaryWriter(folder_path)
+
+def split_by_sets(dataset):
+    """
+    all_repetition_ids = np.unique(np.concatenate(odh.reps)) # [0, 1, 2, 3]
+
+    returns (train_measurements, validate_measurements, test_measurements)
+    """
+    train_measurements = dataset.isolate_data("sets",[0])
+    non_train_measurements  = dataset.isolate_data("sets",[1])
+    validate_measurements = non_train_measurements.isolate_data("reps",[0, 1])
+    test_measurements = non_train_measurements.isolate_data("reps",[2, 3])
+    return (train_measurements, validate_measurements, test_measurements)
+
+
 seed = 123
 seeds = [0, 1, 7, 42, 123, 1337, 2020, 2023] # to check variance or stability
 
-num_subjects = 2
-
+num_subjects = 22
 num_epochs = 50
-
 batch_size = 64
 
 # Adam optimizer params
@@ -280,55 +314,35 @@ adam_weight_decay=0 # 1e-5
 reduceLROnPlateau_factor=0.7
 reduceLROnPlateau_patience=3
 
+transfer_strategy = None
 
-experiments = [
-    { 'batch_size': 64 }
-]
 
-def get_experiment_name(): 
+def get_experiment_name(detail = ''): 
     optimizer_config = f'Adam(learning_rate={adam_learning_rate},weight_decay={adam_weight_decay})'
     # scheduler_config = f'ReduceLROnPlateau(factor={reduceLROnPlateau_factor},patience={reduceLROnPlateau_patience})'
     scheduler_config = f'CosineAnnealingLR(T_max={num_epochs}, eta_min={adam_learning_rate/100})'
-    return f'Split by repetition. subjects={num_subjects},num_epochs={num_epochs},batch_size={batch_size},{optimizer_config},{scheduler_config}'
+    return f'transfer_learning.{transfer_strategy}.{detail}.subjects={num_subjects},num_epochs={num_epochs},batch_size={batch_size},{optimizer_config},{scheduler_config}'
 
+
+experiments = [
+    { 'transfer_strategy': "finetune_with_fc_reset" },
+    { 'transfer_strategy': "finetune_without_fc_reset" },
+    { 'transfer_strategy': "feature_extractor_with_fc_reset" },
+    { 'transfer_strategy': "feature_extractor_without_fc_reset" }
+]
 
 if __name__ == "__main__":
     
     set_seed(seed)
 
+    generator = torch.Generator()
+    generator.manual_seed(seed)
+
     all_subject_ids = list(range(0,num_subjects))
-    
-    # printd('Started fetching data')
+
     dataset = get_dataset_list()['3DC']()
     odh_full = dataset.prepare_data(subjects=all_subject_ids)
     odh = odh_full['All']
-    # printd('Finished fetching data')
-
-    # all_repetition_ids = np.unique(np.concatenate(odh.reps)) # [0, 1, 2, 3]
-    train_measurements = odh.isolate_data("sets",[0])
-    non_train_measurements  = odh.isolate_data("sets",[1])
-    validate_measurements = non_train_measurements.isolate_data("reps",[0, 1])
-    test_measurements = non_train_measurements.isolate_data("reps",[2, 3])
-
-    # apply a standardization: (x - mean)/std
-    # printd('Started applying filters')
-    filter = Filter(sampling_frequency=1000)
-    filter_dic = {
-        "name": "standardize",
-        "data": train_measurements
-    }
-    filter.install_filters(filter_dic)
-    filter.filter(train_measurements)
-    filter.filter(validate_measurements)
-    filter.filter(test_measurements)
-    # printd('Fiinished applying filters')
-
-    # perform windowing
-    # printd('Started parsing windows')
-    train_windows, train_metadata = train_measurements.parse_windows(200,100)
-    validate_windows, validate_metadata = validate_measurements.parse_windows(200,100)
-    test_windows, test_metadata = test_measurements.parse_windows(200,100)
-    # printd('Finished parsing windows')
 
     for experiment in experiments:
         num_subjects = experiment['num_subjects'] if 'num_subjects' in experiment else num_subjects
@@ -341,5 +355,101 @@ if __name__ == "__main__":
         reduceLROnPlateau_factor = experiment['reduceLROnPlateau_factor'] if 'reduceLROnPlateau_factor' in experiment else reduceLROnPlateau_factor
         reduceLROnPlateau_patience = experiment['reduceLROnPlateau_patience'] if 'reduceLROnPlateau_patience' in experiment else reduceLROnPlateau_patience
 
+        transfer_strategy = experiment['transfer_strategy'] if 'transfer_strategy' in experiment else transfer_strategy
+
         printd('experiment: ', get_experiment_name())
-        train_CNN_classifier(train_windows, train_metadata, validate_windows, validate_metadata, test_windows, test_metadata)
+
+        post_subject_ids = [0]
+        pre_subject_ids = [subject_id for subject_id in all_subject_ids if subject_id not in post_subject_ids]
+
+
+        # pretrain model
+        pre_tensorboard_writer = create_tensorboard_writer(folder_path=os.path.join("tensorboard", 'libemg_3dc', get_experiment_name(detail='pre')))
+        
+        pre_checkpoint_path=f'libemg_3dc/transfer_learning/checkpoints/pretrained.pt'
+        pre_model_checkpoint = ModelCheckpoint(pre_checkpoint_path, verbose=False)
+
+        if os.path.isfile(pre_checkpoint_path): 
+            print('Load existing pre-trained model')
+            pre_model_state, pre_model_config = pre_model_checkpoint.load()
+            standardization_mean = pre_model_config['standardization_mean']
+            standardization_std = pre_model_config['standardization_std']
+            pre_model = CNN(n_output=pre_model_config['n_output'], n_channels=pre_model_config['n_channels'], n_samples=pre_model_config['n_samples'], n_filters=pre_model_config['n_filters'], generator=generator, tensorboard_writer=None)
+            pre_model.load_state_dict(pre_model_state)
+        else:
+            print('Pre-train model')
+            # prepare pretraining data
+            pre_measurements  = odh.isolate_data("subjects", pre_subject_ids)
+            (pre_train_measurements, pre_validate_measurements, pre_test_measurements) = split_by_sets(pre_measurements)
+            # apply standardization
+            standardization_mean, standardization_std = get_standardization_params(pre_train_measurements)
+            pre_train_measurements = apply_standardization_params(pre_train_measurements, standardization_mean, standardization_std)
+            pre_validate_measurements = apply_standardization_params(pre_validate_measurements, standardization_mean, standardization_std)
+            pre_test_measurements = apply_standardization_params(pre_test_measurements, standardization_mean, standardization_std)
+            # perform windowing
+            pre_train_windows, pre_train_metadata = pre_train_measurements.parse_windows(200,100)
+            pre_validate_windows, pre_validate_metadata = pre_validate_measurements.parse_windows(200,100)
+            pre_test_windows, pre_test_metadata = pre_test_measurements.parse_windows(200,100)
+
+            n_output = len(np.unique(np.vstack(pre_train_metadata['classes'])))
+            n_channels = pre_train_windows.shape[1]
+            n_samples = pre_train_windows.shape[2]
+            n_filters = batch_size
+
+            pre_dataloader_dictionary = {
+                "training_dataloader": make_data_loader(pre_train_windows, pre_train_metadata["classes"], batch_size=batch_size, generator=generator),
+                "validation_dataloader": make_data_loader(pre_validate_windows, pre_validate_metadata["classes"], batch_size=batch_size, generator=generator)
+                }
+            pre_model = CNN(n_output, n_channels, n_samples, n_filters = batch_size, generator=generator, tensorboard_writer=pre_tensorboard_writer)
+            pre_model_checkpoint.set_config("n_output", n_output)
+            pre_model_checkpoint.set_config("n_channels", n_channels)
+            pre_model_checkpoint.set_config("n_samples", n_samples)
+            pre_model_checkpoint.set_config("n_filters", n_filters)
+            pre_model_checkpoint.set_config("standardization_mean", standardization_mean)
+            pre_model_checkpoint.set_config("standardization_std", standardization_std)
+            standardization_mean, standardization_std
+            pre_model.fit(pre_dataloader_dictionary, verbose=True, model_checkpoint=pre_model_checkpoint)
+        
+            pre_classifier = EMGClassifier(None)
+            pre_classifier.model = pre_model
+            predicted_classes, class_probabilities = pre_classifier.run(pre_test_windows)
+            print('Pre-training finished.\nMetrics: \n', sklearn.metrics.classification_report(y_true=pre_test_metadata['classes'], y_pred=predicted_classes, output_dict=False))
+
+
+        # prepare finetuning data
+        post_subject_ids = [0] # substitude to the one from pretraining set to check if I didn't break the model, it should work great on the data is has seen already
+        post_measurements =  odh.isolate_data("subjects", post_subject_ids)
+        (post_train_measurements, post_validate_measurements, post_test_measurements) = split_by_sets(post_measurements)
+        # apply standardization
+        post_train_measurements = apply_standardization_params(post_train_measurements, standardization_mean, standardization_std)
+        post_validate_measurements = apply_standardization_params(post_validate_measurements, standardization_mean, standardization_std)
+        post_test_measurements = apply_standardization_params(post_test_measurements, standardization_mean, standardization_std)
+        # perform windowing
+        post_train_windows, post_train_metadata = post_train_measurements.parse_windows(200,100)
+        post_validate_windows, post_validate_metadata = post_validate_measurements.parse_windows(200,100)
+        post_test_windows, post_test_metadata = post_test_measurements.parse_windows(200,100)
+
+        # finetune model
+        post_tensorboard_writer = create_tensorboard_writer(folder_path=os.path.join("tensorboard", 'libemg_3dc', get_experiment_name(detail='post')))
+        post_model = CNN(n_output=pre_model_config['n_output'], n_channels=pre_model_config['n_channels'], n_samples=pre_model_config['n_samples'], n_filters=pre_model_config['n_filters'], generator=generator, tensorboard_writer=post_tensorboard_writer)
+        post_model.load_state_dict(pre_model_state)
+        post_model.apply_transfer_strategy(strategy=transfer_strategy) # comment to ensure reproducibility
+
+        post_dataloader_dictionary = {
+            "training_dataloader": make_data_loader(post_train_windows, post_train_metadata["classes"], batch_size=batch_size, generator=generator),
+            "validation_dataloader": make_data_loader(post_validate_windows, post_validate_metadata["classes"], batch_size=batch_size, generator=generator)
+            }
+        post_checkpoint_path=f'libemg_3dc/transfer_learning/checkpoints/{transfer_strategy}.pt'
+        post_model_checkpoint = ModelCheckpoint(post_checkpoint_path, verbose=False)
+        post_model.fit(post_dataloader_dictionary, verbose=True, model_checkpoint=post_model_checkpoint)
+        post_classifier = EMGClassifier(None)
+        post_classifier.model = post_model
+        predicted_classes, class_probabilities = post_classifier.run(post_test_windows)
+        print('Post-training: \n', sklearn.metrics.classification_report(y_true=post_test_metadata['classes'], y_pred=predicted_classes, output_dict=False))
+
+# TODO:
+# - achieve reproducibility - maybe I need to pass optimizer as well as ChatGPT proposes
+# - run updated network with fixes on the "split by subjects" setup 
+# - compare with the case if I tried to fit on the new subject without finetuning on him (baseline1)
+# - compare with the case if you were training only on this subject (baseline1)
+# - do cycle of excluding subjects one by one, store, metrics - calculate metrics for baselines, and for transfer learning, calculate mean and std for imporovements across subjects 
