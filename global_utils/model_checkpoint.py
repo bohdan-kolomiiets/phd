@@ -17,7 +17,7 @@ class ModelCheckpoint:
             torch.save({ "model_state": model.state_dict(), "model_config": self.model_config }, self.path)
             self.best_val_loss = val_loss
 
-    def load(self):
+    def load_best_model_config(self):
         """
         Returns: (state, config)
         """

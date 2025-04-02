@@ -161,7 +161,6 @@ class CNN(nn.Module):
                 loss = loss_function(output, labels) # labels.shape == Size([64])
                 loss.backward()
                 optimizer.step()
-                # acc = sum(torch.argmax(output, dim=1) == labels)/labels.shape[0]
                 acc = (torch.argmax(output, dim=1) == labels).float().mean()
 
                 # log it
@@ -175,7 +174,6 @@ class CNN(nn.Module):
                 labels = CNN._try_move_to_accelerator(labels)
                 output = self.forward(data)
                 loss = loss_function(output, labels)
-                # acc = sum(torch.argmax(output,1) == labels)/labels.shape[0]
                 acc = (torch.argmax(output, dim=1) == labels).float().mean()
                 # log it
                 self.log["validation_loss"] += [(epoch, loss.item())]
@@ -371,7 +369,7 @@ if __name__ == "__main__":
 
         if os.path.isfile(pre_checkpoint_path): 
             print('Load existing pre-trained model')
-            pre_model_state, pre_model_config = pre_model_checkpoint.load()
+            pre_model_state, pre_model_config = pre_model_checkpoint.load_best_model_config()
             standardization_mean = pre_model_config['standardization_mean']
             standardization_std = pre_model_config['standardization_std']
             pre_model = CNN(n_output=pre_model_config['n_output'], n_channels=pre_model_config['n_channels'], n_samples=pre_model_config['n_samples'], n_filters=pre_model_config['n_filters'], generator=generator, tensorboard_writer=None)
@@ -407,8 +405,9 @@ if __name__ == "__main__":
             pre_model_checkpoint.set_config("n_filters", n_filters)
             pre_model_checkpoint.set_config("standardization_mean", standardization_mean)
             pre_model_checkpoint.set_config("standardization_std", standardization_std)
-            standardization_mean, standardization_std
             pre_model.fit(pre_dataloader_dictionary, verbose=True, model_checkpoint=pre_model_checkpoint)
+            pre_model_state, pre_model_config = pre_model_checkpoint.load_best_model_config()
+            pre_model.load_state_dict(pre_model_state)
         
             pre_classifier = EMGClassifier(None)
             pre_classifier.model = pre_model
@@ -433,7 +432,7 @@ if __name__ == "__main__":
         post_tensorboard_writer = create_tensorboard_writer(folder_path=os.path.join("tensorboard", 'libemg_3dc', get_experiment_name(detail='post')))
         post_model = CNN(n_output=pre_model_config['n_output'], n_channels=pre_model_config['n_channels'], n_samples=pre_model_config['n_samples'], n_filters=pre_model_config['n_filters'], generator=generator, tensorboard_writer=post_tensorboard_writer)
         post_model.load_state_dict(pre_model_state)
-        post_model.apply_transfer_strategy(strategy=transfer_strategy) # comment to ensure reproducibility
+        post_model.apply_transfer_strategy(strategy=transfer_strategy) # comment to check reproducibility
 
         post_dataloader_dictionary = {
             "training_dataloader": make_data_loader(post_train_windows, post_train_metadata["classes"], batch_size=batch_size, generator=generator),
@@ -442,6 +441,9 @@ if __name__ == "__main__":
         post_checkpoint_path=f'libemg_3dc/transfer_learning/checkpoints/{transfer_strategy}.pt'
         post_model_checkpoint = ModelCheckpoint(post_checkpoint_path, verbose=False)
         post_model.fit(post_dataloader_dictionary, verbose=True, model_checkpoint=post_model_checkpoint)
+        post_model_state, _ = post_model_checkpoint.load_best_model_config()
+        post_model.load_state_dict(post_model_state)
+
         post_classifier = EMGClassifier(None)
         post_classifier.model = post_model
         predicted_classes, class_probabilities = post_classifier.run(post_test_windows)
@@ -453,3 +455,9 @@ if __name__ == "__main__":
 # - compare with the case if I tried to fit on the new subject without finetuning on him (baseline1)
 # - compare with the case if you were training only on this subject (baseline1)
 # - do cycle of excluding subjects one by one, store, metrics - calculate metrics for baselines, and for transfer learning, calculate mean and std for imporovements across subjects 
+
+# intermediate results:
+# finetune_with_fc_reset -    macro avg       0.85      0.83      0.83      1052
+# finetune_without_fc_reset - macro avg       0.87      0.84      0.84      1052
+# feature_extractor_with_fc_reset - macro avg       0.49      0.45      0.44      1052
+# feature_extractor_without_fc_reset - macro avg       0.48      0.45      0.43      1052
