@@ -259,7 +259,7 @@ class CNN(nn.Module):
                 parameter.requires_grad = False
 
         else:
-            raise ValueError("Invalid strategy. Choose: 'finetune', 'feature_extractor', or 'continue_all'.")
+            raise ValueError("Invalid strategy")
 
         return self
 
@@ -330,7 +330,6 @@ experiments = [
     { 'transfer_strategy': "feature_extractor_without_fc_reset" }
 ]
 
-print("torch version: ", torch.__version__)
 if __name__ == "__main__":
     
     set_seed(seed)
@@ -431,7 +430,7 @@ if __name__ == "__main__":
         generator = torch.Generator().manual_seed(seed)
         post_model = CNN(n_output=pre_model_config['n_output'], n_channels=pre_model_config['n_channels'], n_samples=pre_model_config['n_samples'], n_filters=pre_model_config['n_filters'], generator=generator, tensorboard_writer=post_tensorboard_writer)
         post_model.load_state_dict(pre_model_state)
-        # post_model.apply_transfer_strategy(strategy=transfer_strategy) # comment to check reproducibility
+        post_model.apply_transfer_strategy(strategy=transfer_strategy) # comment to check reproducibility
 
         post_checkpoint_path=f'libemg_3dc/transfer_learning/checkpoints/{transfer_strategy}.pt'
         post_model_checkpoint = ModelCheckpoint(post_checkpoint_path, verbose=False)
@@ -447,19 +446,3 @@ if __name__ == "__main__":
         post_classifier.model = post_model
         predicted_classes, class_probabilities = post_classifier.run(post_test_windows)
         print('Post-training: \n', sklearn.metrics.classification_report(y_true=post_test_metadata['classes'], y_pred=predicted_classes, output_dict=False))
-
-# TODO:
-# - achieve reproducibility - maybe I need to pass optimizer as well as ChatGPT proposes
-# - run updated network with fixes on the "split by subjects" setup 
-# - compare with the case if I tried to fit on the new subject without finetuning on him (baseline1)
-# - compare with the case if you were training only on this subject (baseline1)
-# - do cycle of excluding subjects one by one, store, metrics - calculate metrics for baselines, and for transfer learning, calculate mean and std for imporovements across subjects 
-
-# Intersting: F-score can depend significantly on the seed (0.79 - 0.88)
-# Will need to track variation across experiemnts to get average: generator = torch.Generator().manual_seed(seed + i)
-
-# intermediate results:
-# finetune_with_fc_reset -    macro avg       0.85      0.83      0.83      1052
-# finetune_without_fc_reset - macro avg       0.87      0.84      0.84      1052
-# feature_extractor_with_fc_reset - macro avg       0.49      0.45      0.44      1052
-# feature_extractor_without_fc_reset - macro avg       0.48      0.45      0.43      1052
