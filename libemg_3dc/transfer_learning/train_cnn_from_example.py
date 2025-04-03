@@ -278,6 +278,7 @@ def set_seed(seed):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+    torch.use_deterministic_algorithms(mode=True, warn_only=False)
 
 def create_tensorboard_writer(folder_path):
     if os.path.exists(folder_path):
@@ -300,7 +301,7 @@ def split_by_sets(dataset):
 seed = 123
 seeds = [0, 1, 7, 42, 123, 1337, 2020, 2023] # to check variance or stability
 
-num_subjects = 22
+num_subjects = 1
 num_epochs = 50
 batch_size = 64
 
@@ -329,12 +330,10 @@ experiments = [
     { 'transfer_strategy': "feature_extractor_without_fc_reset" }
 ]
 
+print("torch version: ", torch.__version__)
 if __name__ == "__main__":
     
     set_seed(seed)
-
-    generator = torch.Generator()
-    generator.manual_seed(seed)
 
     all_subject_ids = list(range(0,num_subjects))
 
@@ -360,18 +359,16 @@ if __name__ == "__main__":
         post_subject_ids = [0]
         pre_subject_ids = [subject_id for subject_id in all_subject_ids if subject_id not in post_subject_ids]
 
-
         # pretrain model
         pre_tensorboard_writer = create_tensorboard_writer(folder_path=os.path.join("tensorboard", 'libemg_3dc', get_experiment_name(detail='pre')))
-        
         pre_checkpoint_path=f'libemg_3dc/transfer_learning/checkpoints/pretrained.pt'
         pre_model_checkpoint = ModelCheckpoint(pre_checkpoint_path, verbose=False)
-
         if os.path.isfile(pre_checkpoint_path): 
             print('Load existing pre-trained model')
             pre_model_state, pre_model_config = pre_model_checkpoint.load_best_model_config()
             standardization_mean = pre_model_config['standardization_mean']
             standardization_std = pre_model_config['standardization_std']
+            generator = torch.Generator().manual_seed(seed)
             pre_model = CNN(n_output=pre_model_config['n_output'], n_channels=pre_model_config['n_channels'], n_samples=pre_model_config['n_samples'], n_filters=pre_model_config['n_filters'], generator=generator, tensorboard_writer=None)
             pre_model.load_state_dict(pre_model_state)
         else:
@@ -394,10 +391,7 @@ if __name__ == "__main__":
             n_samples = pre_train_windows.shape[2]
             n_filters = batch_size
 
-            pre_dataloader_dictionary = {
-                "training_dataloader": make_data_loader(pre_train_windows, pre_train_metadata["classes"], batch_size=batch_size, generator=generator),
-                "validation_dataloader": make_data_loader(pre_validate_windows, pre_validate_metadata["classes"], batch_size=batch_size, generator=generator)
-                }
+            generator = torch.Generator().manual_seed(seed)
             pre_model = CNN(n_output, n_channels, n_samples, n_filters = batch_size, generator=generator, tensorboard_writer=pre_tensorboard_writer)
             pre_model_checkpoint.set_config("n_output", n_output)
             pre_model_checkpoint.set_config("n_channels", n_channels)
@@ -405,6 +399,10 @@ if __name__ == "__main__":
             pre_model_checkpoint.set_config("n_filters", n_filters)
             pre_model_checkpoint.set_config("standardization_mean", standardization_mean)
             pre_model_checkpoint.set_config("standardization_std", standardization_std)
+            pre_dataloader_dictionary = {
+                "training_dataloader": make_data_loader(pre_train_windows, pre_train_metadata["classes"], batch_size=batch_size, generator=generator),
+                "validation_dataloader": make_data_loader(pre_validate_windows, pre_validate_metadata["classes"], batch_size=batch_size, generator=generator)
+                }
             pre_model.fit(pre_dataloader_dictionary, verbose=True, model_checkpoint=pre_model_checkpoint)
             pre_model_state, pre_model_config = pre_model_checkpoint.load_best_model_config()
             pre_model.load_state_dict(pre_model_state)
@@ -430,16 +428,17 @@ if __name__ == "__main__":
 
         # finetune model
         post_tensorboard_writer = create_tensorboard_writer(folder_path=os.path.join("tensorboard", 'libemg_3dc', get_experiment_name(detail='post')))
+        generator = torch.Generator().manual_seed(seed)
         post_model = CNN(n_output=pre_model_config['n_output'], n_channels=pre_model_config['n_channels'], n_samples=pre_model_config['n_samples'], n_filters=pre_model_config['n_filters'], generator=generator, tensorboard_writer=post_tensorboard_writer)
         post_model.load_state_dict(pre_model_state)
-        post_model.apply_transfer_strategy(strategy=transfer_strategy) # comment to check reproducibility
+        # post_model.apply_transfer_strategy(strategy=transfer_strategy) # comment to check reproducibility
 
+        post_checkpoint_path=f'libemg_3dc/transfer_learning/checkpoints/{transfer_strategy}.pt'
+        post_model_checkpoint = ModelCheckpoint(post_checkpoint_path, verbose=False)
         post_dataloader_dictionary = {
             "training_dataloader": make_data_loader(post_train_windows, post_train_metadata["classes"], batch_size=batch_size, generator=generator),
             "validation_dataloader": make_data_loader(post_validate_windows, post_validate_metadata["classes"], batch_size=batch_size, generator=generator)
             }
-        post_checkpoint_path=f'libemg_3dc/transfer_learning/checkpoints/{transfer_strategy}.pt'
-        post_model_checkpoint = ModelCheckpoint(post_checkpoint_path, verbose=False)
         post_model.fit(post_dataloader_dictionary, verbose=True, model_checkpoint=post_model_checkpoint)
         post_model_state, _ = post_model_checkpoint.load_best_model_config()
         post_model.load_state_dict(post_model_state)
@@ -455,6 +454,9 @@ if __name__ == "__main__":
 # - compare with the case if I tried to fit on the new subject without finetuning on him (baseline1)
 # - compare with the case if you were training only on this subject (baseline1)
 # - do cycle of excluding subjects one by one, store, metrics - calculate metrics for baselines, and for transfer learning, calculate mean and std for imporovements across subjects 
+
+# Intersting: F-score can depend significantly on the seed (0.79 - 0.88)
+# Will need to track variation across experiemnts to get average: generator = torch.Generator().manual_seed(seed + i)
 
 # intermediate results:
 # finetune_with_fc_reset -    macro avg       0.85      0.83      0.83      1052
