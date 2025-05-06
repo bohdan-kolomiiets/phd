@@ -1,9 +1,11 @@
+import os
 import torch
 
 class ModelCheckpoint:
     def __init__(self, path='checkpoint.pt', verbose=False):
         self.best_val_loss = float('inf')
         self.path = path
+        os.makedirs(os.path.dirname(self.path), exist_ok=True)
         self.verbose = verbose
         self.model_config = {}
 

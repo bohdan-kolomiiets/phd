@@ -1,0 +1,50 @@
+[
+    {
+        "id": "{guid}",
+        "type": "single-subject", // 22*8*7=1232
+        "subject": 0,
+        "repetitions-split": {
+            "training-reps": [1,2,3,4,5,6],
+            "validation-reps": [7],
+            "test-reps": [8]
+        },
+        "training-curves": [],
+        "test-report": {},
+        "model-filename": "{guid}.pt",
+        "tensorboard-directory": "{guid}"
+    },
+    {
+        "id": "{guid}",
+        "type": "pre-training", // 22*8*7=1232
+        "subjects-split": {
+            "training-subjects": [1,2,3,4,5,6],
+            "test-subjects": [0]
+        },
+        "repetitions-split": {
+            "training-reps": [1,2,3,4,5,6],
+            "validation-reps": [7],
+            "test-reps": [8]
+        },
+        "training-curves": [],
+        "test-report": {},
+        "model-filename": "{guid}.pt",
+        "tensorboard-directory": "{guid}"
+    },
+    {
+        "id": "{guid}",
+        "type": "fine-tuning", // take best corresponding pre-trained model, cut the head, and run fine-tuning 22*8*7=1232 times
+        "subjects-split": {
+            "training-subjects": [1,2,3,4,5,6],
+            "test-subjects": [0]
+        },
+        "repetitions-split": {
+            "training-reps": [1,2,3,4,5,6],
+            "validation-reps": [7],
+            "test-reps": [8]
+        },
+        "training-curves": [],
+        "test-report": {},
+        "model-filename": "{guid}.pt",
+        "tensorboard-directory": "{guid}"
+    }
+]

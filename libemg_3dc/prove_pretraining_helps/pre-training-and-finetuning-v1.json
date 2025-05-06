@@ -1,0 +1,105 @@
+{
+    "subject-folds": [
+        {
+            "name": "LLO-0",
+            "subjects-split": {
+                "training-subjects": [1,2,3,4,5,6],
+                "test-subjects": [0]
+            },
+            "pre-training": {
+                "repetition-folds": [
+                    {
+                        "repetitions-split": {
+                            "training-reps": [1,2,3,4,5,6],
+                            "validation-reps": [7],
+                            "test-reps": [8]
+                        },
+                        "training-curves": [],
+                        "test-report": {},
+                        "model-filename": "{guid}.pt",
+                        "tensorboardId": "{guid}"
+                    }
+                ]
+            },
+            "fine-tuning": {
+                "repetition-folds": [
+                    {
+                        "repetitions-split": {
+                            "training-reps": [1,2,3,4,5,6],
+                            "validation-reps": [7],
+                            "test-reps": [8]
+                        },
+                        "training-curves": [],
+                        "test-report": {},
+                        "model-path": "/asdad/{guid}.pt"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "LLO-1",
+            "subjects-split": {
+                "training-subjects": [0,2,3,4,5,6],
+                "test-subjects": [1]
+            },
+            "repetition-folds": [
+                "train:1,2,3,4,5,6;validate:7,test:8": {
+                    "repetitions-split": {
+                        "training-reps": [1,2,3,4,5,6],
+                        "validation-reps": [7],
+                        "test-reps": [8]
+                    },
+                    "training-curves": [
+                        {
+                            "batch": 1,
+                            "training_accuracy": 0.1,
+                            "training_loss": 0.1,
+                            "validation_loss": 0.1,
+                            "validation_accuracy": 0.1
+                        },
+                        {
+                            "batch": 2,
+                            "training_accuracy": 0.1,
+                            "training_loss": 0.1,
+                            "validation_loss": 0.1,
+                            "validation_accuracy": 0.1
+                        }
+                    ],
+                    "test-report": {
+                        "class-0": {
+                            "precision": 1.0,
+                            "recall": 1.0,
+                            "f1-score": 1.0,
+                            "support": 1
+                        },
+                        "class-1": {
+                            "precision": 0.0,
+                            "recall": 0.0,
+                            "f1-score": 0.0,
+                            "support": 1
+                        },
+                        "class-": {
+                            "precision": 0.67,
+                            "recall": 0.67,
+                            "f1-score": 0.67,
+                            "support": 3
+                        },
+                        "accuracy": 0.6,
+                        "macro avg": {
+                            "precision": 0.56,
+                            "recall": 0.56,
+                            "f1-score": 0.56,
+                            "support": 5
+                        },
+                        "weighted avg": {
+                            "precision": 0.60,
+                            "recall": 0.6,
+                            "f1-score": 0.6,
+                            "support": 5
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
