@@ -2,11 +2,9 @@ import os
 import random
 import sys
 import shutil
-import json
 import numpy as np
 import sklearn
 import sklearn.metrics
-from sklearn.model_selection import LeaveOneOut
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from libemg.datasets import *
@@ -101,7 +99,7 @@ adam_weight_decay=0 # 1e-5
 transfer_strategy = 'feature_extractor_with_fc_reset'
 
 
-training_results = TrainingResults.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results.json')
+training_results = TrainingResults.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(ready) copy.json')
 
 training_results.cleanup(
     model_type=NeuralNetworkSingleSubjectTrainingResult.model_type, 
