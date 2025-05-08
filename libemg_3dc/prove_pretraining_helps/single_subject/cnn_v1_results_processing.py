@@ -1,16 +1,7 @@
 import os
-import random
 import sys
-import shutil
-import json
 import numpy as np
-import sklearn
-import sklearn.metrics
-from sklearn.model_selection import LeaveOneOut
-import torch
-from torch.utils.tensorboard import SummaryWriter
 from libemg.datasets import *
-from libemg.emg_predictor import EMGClassifier
 from typing import cast
 
 
@@ -18,12 +9,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 
-from global_utils.print_with_date import printd
-from global_utils.model_checkpoint import ModelCheckpoint
-from utils.libemg_deep_learning import make_data_loader
-from utils.libemg_offline_data_handler_utils import get_standardization_params, apply_standardization_params, split_by_sets
-from utils.neural_networks.libemg_cnn_v1 import CNN_V1 as CNN
-from utils.subject_repetitions_cross_validation import generate_repetitions_folds
 from utils.training_results import TrainingResults, NeuralNetworkSingleSubjectTrainingResult
 
 
