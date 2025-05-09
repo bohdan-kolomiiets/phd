@@ -30,7 +30,7 @@ def apply_standardization_params(odh: OfflineDataHandler, mean_by_channels, std_
     return odh
 
 
-def split_on_3_sets(odh: OfflineDataHandler, train_reps: np.ndarray = None, validate_reps: np.ndarray = None, test_reps: np.ndarray = None):
+def split_data_on_3_sets_by_reps(odh: OfflineDataHandler, train_reps: np.ndarray = None, validate_reps: np.ndarray = None, test_reps: np.ndarray = None):
     """
     all_repetition_ids = np.unique(np.concatenate(odh.reps)) # [0, 1, 2, 3]
 
@@ -63,7 +63,7 @@ def split_on_3_sets(odh: OfflineDataHandler, train_reps: np.ndarray = None, vali
         test_measurements = reduce(lambda a, b: a + b, (map[set] for set in test_reps))
         return (train_measurements, validate_measurements, test_measurements)
 
-def split_on_2_sets(odh: OfflineDataHandler, train_reps: np.ndarray, validate_reps: np.ndarray):
+def split_data_on_2_sets_by_reps(odh: OfflineDataHandler, train_reps: np.ndarray, validate_reps: np.ndarray):
     """
     all_repetition_ids = np.unique(np.concatenate(odh.reps)) # [0, 1, 2, 3]
 

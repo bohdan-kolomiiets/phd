@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 from global_utils.print_with_date import printd
 from global_utils.model_checkpoint import ModelCheckpoint
 from utils.libemg_deep_learning import make_data_loader
-from utils.libemg_offline_data_handler_utils import get_standardization_params, apply_standardization_params, split_on_3_sets
+from utils.libemg_offline_data_handler_utils import get_standardization_params, apply_standardization_params, split_data_on_3_sets_by_reps
 from utils.neural_networks.libemg_cnn_v1 import CNN_V1 as CNN
 from utils.subject_repetitions_cross_validation import generate_3_repetitions_folds
 from utils.training_results import TrainingResult, TrainingResults, NeuralNetworkSingleSubjectTrainingResult
@@ -119,7 +119,7 @@ if __name__ == "__main__":
         repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6,7,8])
         for repetition_fold in repetition_folds:
             
-            (train_measurements, validate_measurements, test_measurements) = split_on_3_sets(subject_measurements, 
+            (train_measurements, validate_measurements, test_measurements) = split_data_on_3_sets_by_reps(subject_measurements, 
                 train_reps=repetition_fold['train_reps'], validate_reps=repetition_fold['validate_reps'], test_reps=repetition_fold['test_reps'])
             
             training_result = NeuralNetworkSingleSubjectTrainingResult.create(
