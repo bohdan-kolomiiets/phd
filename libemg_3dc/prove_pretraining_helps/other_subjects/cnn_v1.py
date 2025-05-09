@@ -95,15 +95,15 @@ def generate_cross_validation_folds(all_subject_ids: list[int]) -> Iterator["Neu
             training_result: NeuralNetworkOtherSubjectsTrainingExperiment = NeuralNetworkOtherSubjectsTrainingExperiment.create(
                 train_subject_ids=list(train_subject_ids), 
                 test_subject_ids=list(test_subject_ids),
-                train_repetitions=repetition_fold['train_reps'], 
-                validate_repetitions=repetition_fold['validate_reps'], 
-                test_repetitions=repetition_fold['test_reps'])
+                train_reps=repetition_fold['train_reps'], 
+                validate_reps=repetition_fold['validate_reps'], 
+                test_reps=repetition_fold['test_reps'])
             yield training_result
 
 
 seed = 123
 
-num_subjects = 3
+num_subjects = 22
 num_epochs = 50
 batch_size = 64
 
@@ -130,7 +130,6 @@ if __name__ == "__main__":
     odh_full = dataset.prepare_data(subjects=all_subject_ids)
     odh = odh_full['All']
 
-
     all_possible_experiments  = generate_cross_validation_folds(all_subject_ids)
 
     for experiment in all_possible_experiments:
@@ -142,9 +141,9 @@ if __name__ == "__main__":
 
         (train_measurements, validate_measurements, test_measurements) = split_data_on_3_sets_by_reps(
             odh=target_subjects_measurements, 
-            train_reps=experiment.train_repetitions, 
-            validate_reps=experiment.validate_repetitions, 
-            test_reps=experiment.test_repetitions)
+            train_reps=experiment.train_reps, 
+            validate_reps=experiment.validate_reps, 
+            test_reps=experiment.test_reps)
 
         # apply standardization
         standardization_mean, standardization_std = get_standardization_params(train_measurements)

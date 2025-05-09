@@ -16,7 +16,7 @@ from libemg_3dc.utils.training_experiments import TrainingExperiments, NeuralNet
 
 if __name__ == "__main__":
 
-    training_results = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(ready) copy.json')
+    training_results = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(ready).json')
 
     single_subject_results: list[NeuralNetworkSingleSubjectTrainingExperiment] = [
         cast(NeuralNetworkSingleSubjectTrainingExperiment, result) for result in training_results.data if isinstance(result, NeuralNetworkSingleSubjectTrainingExperiment)]

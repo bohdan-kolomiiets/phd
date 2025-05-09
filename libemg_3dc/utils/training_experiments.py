@@ -167,9 +167,9 @@ class UnknownTrainingExperiment(TrainingExperiment):
 @dataclass(eq=False)
 class NeuralNetworkSingleSubjectTrainingExperiment(TrainingExperiment):
     subject_id: int
-    training_repetitions: list[int]
-    validation_repetitions: list[int]
-    test_repetitions: list[int]
+    train_reps: list[int]
+    validate_reps: list[int]
+    test_reps: list[int]
     training_data: list[str] = field(default_factory=list)
     test_result: dict = field(default=None)
 
@@ -179,24 +179,24 @@ class NeuralNetworkSingleSubjectTrainingExperiment(TrainingExperiment):
     @classmethod
     def create(cls, 
                subject_id: int, 
-               training_repetitions: list[int], validation_repetitions: list[int], test_repetitions: list[int]) -> "NeuralNetworkSingleSubjectTrainingExperiment":
+               train_reps: list[int], validate_reps: list[int], test_reps: list[int]) -> "NeuralNetworkSingleSubjectTrainingExperiment":
         
         id_data = {
             "model_type": cls.model_type,
             "experiment_type": cls.experiment_type,
             "subject_id": subject_id,
-            "training_repetitions": json.dumps(training_repetitions),
-            "validation_repetitions": json.dumps(validation_repetitions),
-            "test_repetitions": json.dumps(test_repetitions)
+            "train_reps": json.dumps(train_reps),
+            "validate_reps": json.dumps(validate_reps),
+            "test_reps": json.dumps(test_reps)
         }
         id = ".".join(f"{k}:{v}" for k, v in id_data.items())
 
         return cls(
             id=id,
             subject_id=subject_id, 
-            training_repetitions=training_repetitions, 
-            validation_repetitions=validation_repetitions, 
-            test_repetitions=test_repetitions
+            train_reps=train_reps, 
+            validate_reps=validate_reps, 
+            test_reps=test_reps
         )
 
     def save_training_data(self, epoch_training_data: dict): 
@@ -228,9 +228,9 @@ class NeuralNetworkSingleSubjectTrainingExperiment(TrainingExperiment):
         return cls(
             id=json_dict["id"],
             subject_id=int(id_data["subject_id"]), 
-            training_repetitions=list(json.loads(id_data["training_repetitions"])), 
-            validation_repetitions=list(json.loads(id_data["validation_repetitions"])), 
-            test_repetitions=list(json.loads(id_data["test_repetitions"])), 
+            train_reps=list(json.loads(id_data["train_reps"])), 
+            validate_reps=list(json.loads(id_data["validate_reps"])), 
+            test_reps=list(json.loads(id_data["test_reps"])), 
             training_data=json_dict.get("training_data", []),
             test_result=json_dict.get("test_result", None)
         )
@@ -241,9 +241,9 @@ class NeuralNetworkSingleSubjectTrainingExperiment(TrainingExperiment):
 class NeuralNetworkOtherSubjectsTrainingExperiment(TrainingExperiment):
     train_subject_ids: list[int]
     test_subject_ids: list[int]
-    train_repetitions: list[int]
-    validate_repetitions: list[int]
-    test_repetitions: list[int]
+    train_reps: list[int]
+    validate_reps: list[int]
+    test_reps: list[int]
 
     training_data: list[str] = field(default_factory=list)    
     training_subjects_test_result: dict = field(default=None)
@@ -256,18 +256,18 @@ class NeuralNetworkOtherSubjectsTrainingExperiment(TrainingExperiment):
     def create(cls, 
                train_subject_ids: list[int], 
                test_subject_ids: list[int], 
-               train_repetitions: list[int], 
-               validate_repetitions: list[int], 
-               test_repetitions: list[int]) -> "NeuralNetworkOtherSubjectsTrainingExperiment":
+               train_reps: list[int], 
+               validate_reps: list[int], 
+               test_reps: list[int]) -> "NeuralNetworkOtherSubjectsTrainingExperiment":
         
         id_data = {
             "model_type": cls.model_type,
             "experiment_type": cls.experiment_type,
             "train_subject_ids": json.dumps([int(subject_id) for subject_id in train_subject_ids]),
             "test_subject_ids": json.dumps([int(subject_id) for subject_id in test_subject_ids]),
-            "train_repetitions": json.dumps(train_repetitions),
-            "validate_repetitions": json.dumps(validate_repetitions),
-            "test_repetitions": json.dumps(test_repetitions)
+            "train_reps": json.dumps(train_reps),
+            "validate_reps": json.dumps(validate_reps),
+            "test_reps": json.dumps(test_reps)
         }
         id = ".".join(f"{k}:{v}" for k, v in id_data.items())
 
@@ -275,9 +275,9 @@ class NeuralNetworkOtherSubjectsTrainingExperiment(TrainingExperiment):
             id=id,
             train_subject_ids=train_subject_ids,
             test_subject_ids=test_subject_ids, 
-            train_repetitions=train_repetitions, 
-            validate_repetitions=validate_repetitions, 
-            test_repetitions=test_repetitions
+            train_reps=train_reps, 
+            validate_reps=validate_reps, 
+            test_reps=test_reps
         )
 
     def save_training_data(self, epoch_training_data: dict): 
@@ -316,9 +316,9 @@ class NeuralNetworkOtherSubjectsTrainingExperiment(TrainingExperiment):
             id=json_dict["id"],
             train_subject_ids=list(json.loads(id_data["train_subject_ids"])), 
             test_subject_ids=list(json.loads(id_data["test_subject_ids"])), 
-            train_repetitions=list(json.loads(id_data["train_repetitions"])), 
-            validate_repetitions=list(json.loads(id_data["validate_repetitions"])), 
-            test_repetitions=list(json.loads(id_data["test_repetitions"])), 
+            train_reps=list(json.loads(id_data["train_reps"])), 
+            validate_reps=list(json.loads(id_data["validate_reps"])), 
+            test_reps=list(json.loads(id_data["test_reps"])), 
             training_data=json_dict.get("training_data", []),
             training_subjects_test_result=get_nested(value=json_dict, key_path="test_result:train_subjects", default=None),
             test_subjects_test_result=get_nested(value=json_dict, key_path="test_result:test_subjects", default=None)
