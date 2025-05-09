@@ -9,17 +9,17 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 
-from utils.training_results import TrainingResults, NeuralNetworkSingleSubjectTrainingResult
+from libemg_3dc.utils.training_experiments import TrainingExperiments, NeuralNetworkSingleSubjectTrainingExperiment
 
 
 
 
 if __name__ == "__main__":
 
-    training_results = TrainingResults.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(ready) copy.json')
+    training_results = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(ready) copy.json')
 
-    single_subject_results: list[NeuralNetworkSingleSubjectTrainingResult] = [
-        cast(NeuralNetworkSingleSubjectTrainingResult, result) for result in training_results.data if isinstance(result, NeuralNetworkSingleSubjectTrainingResult)]
+    single_subject_results: list[NeuralNetworkSingleSubjectTrainingExperiment] = [
+        cast(NeuralNetworkSingleSubjectTrainingExperiment, result) for result in training_results.data if isinstance(result, NeuralNetworkSingleSubjectTrainingExperiment)]
     
 
     statistics_by_subject = []

@@ -23,7 +23,7 @@ from utils.libemg_deep_learning import make_data_loader
 from utils.libemg_offline_data_handler_utils import get_standardization_params, apply_standardization_params, split_data_on_3_sets_by_reps
 from utils.neural_networks.libemg_cnn_v1 import CNN_V1 as CNN
 from utils.subject_repetitions_cross_validation import generate_3_repetitions_folds
-from utils.training_results import TrainingResult, TrainingResults, NeuralNetworkOtherSubjectsTrainingResult
+from libemg_3dc.utils.training_experiments import TrainingExperiment, TrainingExperiments, NeuralNetworkOtherSubjectsTrainingExperiment
 
 def add_model_graph_to_tensorboard(model, dataloader, tensorboard_writer):
     data, labels = next(iter(dataloader))
@@ -62,7 +62,7 @@ def create_tensorboard_writer(folder_path):
         shutil.rmtree(folder_path)
     return SummaryWriter(folder_path)
 
-def create_log_callback(training_result: TrainingResult):
+def create_log_callback(training_result: TrainingExperiment):
     
     tensorboard_writer = create_tensorboard_writer(folder_path=os.path.join("tensorboard", 'libemg_3dc', training_result.id))
 
@@ -87,12 +87,12 @@ def create_log_callback(training_result: TrainingResult):
     return log_callback
 
 
-def generate_cross_validation_folds(all_subject_ids: list[int]) -> Iterator["NeuralNetworkOtherSubjectsTrainingResult"]:
+def generate_cross_validation_folds(all_subject_ids: list[int]) -> Iterator["NeuralNetworkOtherSubjectsTrainingExperiment"]:
     subject_llo = LeaveOneOut()
     for (train_subject_ids, test_subject_ids) in subject_llo.split(all_subject_ids):
         repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6,7,8])
         for repetition_fold in repetition_folds:
-            training_result: NeuralNetworkOtherSubjectsTrainingResult = NeuralNetworkOtherSubjectsTrainingResult.create(
+            training_result: NeuralNetworkOtherSubjectsTrainingExperiment = NeuralNetworkOtherSubjectsTrainingExperiment.create(
                 train_subject_ids=list(train_subject_ids), 
                 test_subject_ids=list(test_subject_ids),
                 train_repetitions=repetition_fold['train_reps'], 
@@ -103,7 +103,7 @@ def generate_cross_validation_folds(all_subject_ids: list[int]) -> Iterator["Neu
 
 seed = 123
 
-num_subjects = 22
+num_subjects = 3
 num_epochs = 50
 batch_size = 64
 
@@ -113,7 +113,7 @@ adam_weight_decay=0 # 1e-5
 
 transfer_strategy = 'feature_extractor_with_fc_reset'
 
-processed_experiments = TrainingResults.load(path='libemg_3dc/prove_pretraining_helps/other_subjects/cnn_v1_results.json')
+processed_experiments = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/other_subjects/cnn_v1_results.json')
 
 # training_results.cleanup(
 #     model_type=NeuralNetworkOtherSubjectsTrainingResult.model_type, 

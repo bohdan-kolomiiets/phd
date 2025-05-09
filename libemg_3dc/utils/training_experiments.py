@@ -11,7 +11,7 @@ from global_utils.dict_utils import get_nested
 
 @dataclass
 @dataclass(eq=False)
-class TrainingResult(ABC):
+class TrainingExperiment(ABC):
     id: str
     model_type: str
     experiment_type: str
@@ -25,7 +25,7 @@ class TrainingResult(ABC):
     
 
     def __eq__(self, value):
-        return isinstance(self, TrainingResult) and self.id == value.id
+        return isinstance(self, TrainingExperiment) and self.id == value.id
     
     def __hash__(self):
         return hash(self.id)
@@ -37,7 +37,7 @@ class TrainingResult(ABC):
 
     @classmethod
     @abstractmethod
-    def _from_json_dict(cls, json_dict: dict) -> "TrainingResult":
+    def _from_json_dict(cls, json_dict: dict) -> "TrainingExperiment":
         pass
 
     @abstractmethod
@@ -48,7 +48,7 @@ class TrainingResult(ABC):
         return self.id
 
     @classmethod
-    def from_json_dict(cls, json_dict: dict) -> "TrainingResult":
+    def from_json_dict(cls, json_dict: dict) -> "TrainingExperiment":
         for subclass in cls._registry:
             try:
                 if subclass._can_create_from_json_dict(json_dict):
@@ -61,14 +61,14 @@ class TrainingResult(ABC):
 
 
 
-class TrainingResults:
+class TrainingExperiments:
     
-    def __init__(self, path: Union[str, Path], results: list[TrainingResult]  = None):
+    def __init__(self, path: Union[str, Path], results: list[TrainingExperiment]  = None):
         self.path = path
         self.data = results or []
 
     @classmethod
-    def load(cls, path: Union[str, Path]) -> "TrainingResults":
+    def load(cls, path: Union[str, Path]) -> "TrainingExperiments":
 
         results = []
 
@@ -79,7 +79,7 @@ class TrainingResults:
 
             for json_dict in json_dicts:
                 try:
-                    result = TrainingResult.from_json_dict(json_dict)
+                    result = TrainingExperiment.from_json_dict(json_dict)
                     results.append(result)
                 except Exception as e:
                     print(f'Skipped invalid result: {e}')
@@ -93,7 +93,7 @@ class TrainingResults:
             json.dump([result.to_json_dict() for result in self.data], file, indent=2)
         
 
-    def append(self, result: TrainingResult, indent: int = 2):
+    def append(self, result: TrainingExperiment, indent: int = 2):
         
         self.data.append(result)
 
@@ -140,9 +140,9 @@ class TrainingResults:
 
 
 
-@TrainingResult.register
+@TrainingExperiment.register
 @dataclass(eq=False)
-class UnknownTrainingResult(TrainingResult):
+class UnknownTrainingExperiment(TrainingExperiment):
     model_type: str = field(init=False, default='unknown')
     experiment_type: str = field(init=False, default='unknown')
 
@@ -163,9 +163,9 @@ class UnknownTrainingResult(TrainingResult):
             id=json_dict["id"]
         )
 
-@TrainingResult.register
+@TrainingExperiment.register
 @dataclass(eq=False)
-class NeuralNetworkSingleSubjectTrainingResult(TrainingResult):
+class NeuralNetworkSingleSubjectTrainingExperiment(TrainingExperiment):
     subject_id: int
     training_repetitions: list[int]
     validation_repetitions: list[int]
@@ -179,7 +179,7 @@ class NeuralNetworkSingleSubjectTrainingResult(TrainingResult):
     @classmethod
     def create(cls, 
                subject_id: int, 
-               training_repetitions: list[int], validation_repetitions: list[int], test_repetitions: list[int]) -> "NeuralNetworkSingleSubjectTrainingResult":
+               training_repetitions: list[int], validation_repetitions: list[int], test_repetitions: list[int]) -> "NeuralNetworkSingleSubjectTrainingExperiment":
         
         id_data = {
             "model_type": cls.model_type,
@@ -236,9 +236,9 @@ class NeuralNetworkSingleSubjectTrainingResult(TrainingResult):
         )
     
 
-@TrainingResult.register
+@TrainingExperiment.register
 @dataclass(eq=False)
-class NeuralNetworkOtherSubjectsTrainingResult(TrainingResult):
+class NeuralNetworkOtherSubjectsTrainingExperiment(TrainingExperiment):
     train_subject_ids: list[int]
     test_subject_ids: list[int]
     train_repetitions: list[int]
@@ -258,7 +258,7 @@ class NeuralNetworkOtherSubjectsTrainingResult(TrainingResult):
                test_subject_ids: list[int], 
                train_repetitions: list[int], 
                validate_repetitions: list[int], 
-               test_repetitions: list[int]) -> "NeuralNetworkOtherSubjectsTrainingResult":
+               test_repetitions: list[int]) -> "NeuralNetworkOtherSubjectsTrainingExperiment":
         
         id_data = {
             "model_type": cls.model_type,

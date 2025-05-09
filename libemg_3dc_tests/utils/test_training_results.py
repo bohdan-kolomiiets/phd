@@ -1,6 +1,6 @@
 import uuid
 import numpy as np
-from libemg_3dc.utils.training_results import TrainingResult, NeuralNetworkSingleSubjectTrainingResult
+from libemg_3dc.utils.training_experiments import TrainingExperiment, NeuralNetworkSingleSubjectTrainingExperiment
 
 def test_single_subject_from_json_and_back():
     test_id = str(uuid.uuid4())
@@ -18,8 +18,8 @@ def test_single_subject_from_json_and_back():
         # "tensorboard-directory": test_id
     }
 
-    obj = TrainingResult.from_json(json_dict)
-    assert isinstance(obj, NeuralNetworkSingleSubjectTrainingResult)
+    obj = TrainingExperiment.from_json(json_dict)
+    assert isinstance(obj, NeuralNetworkSingleSubjectTrainingExperiment)
     assert obj.subject_id == "42"
     assert (obj.training_repetitions == np.array([1, 2, 3])).all()
 

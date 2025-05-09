@@ -21,7 +21,7 @@ from utils.libemg_deep_learning import make_data_loader
 from utils.libemg_offline_data_handler_utils import get_standardization_params, apply_standardization_params, split_data_on_3_sets_by_reps
 from utils.neural_networks.libemg_cnn_v1 import CNN_V1 as CNN
 from utils.subject_repetitions_cross_validation import generate_3_repetitions_folds
-from utils.training_results import TrainingResult, TrainingResults, NeuralNetworkSingleSubjectTrainingResult
+from libemg_3dc.utils.training_experiments import TrainingExperiment, TrainingExperiments, NeuralNetworkSingleSubjectTrainingExperiment
 
 def add_model_graph_to_tensorboard(model, dataloader, tensorboard_writer):
     data, labels = next(iter(dataloader))
@@ -60,7 +60,7 @@ def create_tensorboard_writer(folder_path):
         shutil.rmtree(folder_path)
     return SummaryWriter(folder_path)
 
-def create_log_callback(training_result: TrainingResult):
+def create_log_callback(training_result: TrainingExperiment):
     
     tensorboard_writer = create_tensorboard_writer(folder_path=os.path.join("tensorboard", 'libemg_3dc', training_result.id))
 
@@ -96,7 +96,7 @@ batch_size = 64
 adam_learning_rate = 1e-3
 adam_weight_decay=0 # 1e-5
 
-training_results = TrainingResults.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results.json')
+training_results = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results.json')
 
 # training_results.cleanup(
 #     model_type=NeuralNetworkSingleSubjectTrainingResult.model_type, 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
             (train_measurements, validate_measurements, test_measurements) = split_data_on_3_sets_by_reps(subject_measurements, 
                 train_reps=repetition_fold['train_reps'], validate_reps=repetition_fold['validate_reps'], test_reps=repetition_fold['test_reps'])
             
-            training_result = NeuralNetworkSingleSubjectTrainingResult.create(
+            training_result = NeuralNetworkSingleSubjectTrainingExperiment.create(
                 subject_id=subject_id, 
                 training_repetitions=repetition_fold['train_reps'], 
                 validation_repetitions=repetition_fold['validate_reps'], 
