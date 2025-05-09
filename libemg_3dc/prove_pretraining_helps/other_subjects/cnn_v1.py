@@ -116,10 +116,6 @@ transfer_strategy = 'feature_extractor_with_fc_reset'
 
 processed_experiments = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/other_subjects/cnn_v1_results.json')
 
-processed_experiments = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/other_subjects/cnn_v1_results.json')
-processed_experiments: list[NeuralNetworkOtherSubjectsTrainingExperiment] = [cast(NeuralNetworkOtherSubjectsTrainingExperiment, experiment) for experiment in processed_experiments.data]
-
-
 # training_results.cleanup(
 #     model_type=NeuralNetworkOtherSubjectsTrainingResult.model_type, 
 #     experiment_type=NeuralNetworkOtherSubjectsTrainingResult.experiment_type)
@@ -139,7 +135,7 @@ if __name__ == "__main__":
 
     for experiment in all_possible_experiments:
         
-        if(experiment in processed_experiments):
+        if(experiment in processed_experiments.data):
             continue
 
         start = time.perf_counter()
@@ -179,7 +175,7 @@ if __name__ == "__main__":
                 model_checkpoint=model_checkpoint, training_log_callback=log_callback)
         
         # load trained model
-        model_state, model_config = model_checkpoint.load()
+        model_state, model_config = model_checkpoint.load_best_model_config()
         model.load_state_dict(model_state)
         classifier = EMGClassifier(None)
         classifier.model = model

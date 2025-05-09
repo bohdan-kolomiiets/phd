@@ -197,7 +197,7 @@ if __name__ == "__main__":
 
         # load fine-tuned model
         generator = torch.Generator().manual_seed(seed)
-        fine_tuned_model_state, fine_tuned_model_config = ModelCheckpoint.load(f"libemg_3dc/checkpoints/{fine_tuned_experiment.id}.pt")
+        fine_tuned_model_state, fine_tuned_model_config = model_checkpoint.load_best_model_config()
         fine_tuned_model = CNN(
             n_output=fine_tuned_model_config["n_output"], 
             n_channels=fine_tuned_model_config["n_channels"], 
