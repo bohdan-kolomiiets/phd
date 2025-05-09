@@ -63,7 +63,7 @@ class TrainingResults:
         results = []
 
         path = Path(path)
-        if os.path.exists(path): 
+        if os.path.exists(path) and os.stat(path).st_size > 0: 
             with open(path, mode='r', encoding='utf-8') as file:
                 json_dicts = json.load(fp=file) 
 
@@ -73,20 +73,60 @@ class TrainingResults:
                     results.append(result)
                 except Exception as e:
                     print(f'Skipped invalid result: {e}')
-            
+        
         return cls(path, results)
-    
 
-    def append(self, result: TrainingResult):
-        self.data.append(result)
-    
 
-    def cleanup(self, model_type: str, experiment_type: str):
+    def cleanup(self, model_type: str, experiment_type: str, indent: int = 2):
         self.data = [result for result in self.data if result.model_type != model_type and result.experiment_type != experiment_type]
-
-    def save(self):
         with open(self.path, "w") as file:
             json.dump([result.to_json_dict() for result in self.data], file, indent=2)
+        
+
+    def append(self, result: TrainingResult, indent: int = 2):
+        
+        self.data.append(result)
+
+        # Convert the new object to a pretty-formatted JSON string
+        obj_str = json.dumps(result.to_json_dict(), indent=indent)
+        obj_str = "\n" + obj_str + "\n"  # add surrounding newlines for readability
+
+        # Case 1: file does not exist or is empty → create new array with single object
+        if not os.path.exists(self.path) or os.stat(self.path).st_size == 0:
+            with open(self.path, "w", encoding="utf-8") as f:
+                f.write("[")
+                f.write(obj_str)
+                f.write("]")
+            return
+
+        # Case 2: file exists and contains valid array → append inside the array
+        with open(self.path, "rb+") as f:
+            f.seek(0, os.SEEK_END)  # Go to the end of the file
+            f.seek(-1, os.SEEK_CUR)  # Step back one character from the end
+            last_char = f.read(1)    # Read the final character
+
+            # Step backward until we find the true last non-whitespace character
+            while last_char in b" \r\n\t":
+                f.seek(-2, os.SEEK_CUR)
+                last_char = f.read(1)
+
+            # After this, the file pointer is right before the closing bracket `]`
+            f.seek(-1, os.SEEK_CUR)
+            pos = f.tell()  # Save this position to overwrite `]`
+            f.seek(pos)
+
+            # Peek at the character before `]` to check if the array is empty or not
+            f.seek(-1, os.SEEK_CUR)
+            char = f.read(1)
+            f.seek(pos)  # Return to position before final bracket
+
+            needs_comma = char != b"["  # If previous char is not `[`, we need a comma
+
+            # Write the new object and restore the closing `]`
+            if needs_comma:
+                f.write(b",")  # Separate from previous object
+            f.write(obj_str.encode("utf-8"))  # Write the new object
+            f.write(b"]")  # Restore the closing bracket to complete the array
 
 
 
@@ -116,10 +156,10 @@ class UnknownTrainingResult(TrainingResult):
 @TrainingResult.register
 @dataclass
 class NeuralNetworkSingleSubjectTrainingResult(TrainingResult):
-    subject_id: str
-    training_repetitions: np.ndarray
-    validation_repetitions: np.ndarray
-    test_repetitions: np.ndarray
+    subject_id: int
+    training_repetitions: list[int]
+    validation_repetitions: list[int]
+    test_repetitions: list[int]
     training_data: list[str] = field(default_factory=list)
     test_result: dict = field(default=None)
 
@@ -128,18 +168,18 @@ class NeuralNetworkSingleSubjectTrainingResult(TrainingResult):
 
     @classmethod
     def create(cls, 
-               subject_id: str, 
-               training_repetitions: np.ndarray, validation_repetitions: np.ndarray, test_repetitions: np.ndarray):
+               subject_id: int, 
+               training_repetitions: list[int], validation_repetitions: list[int], test_repetitions: list[int]) -> "NeuralNetworkSingleSubjectTrainingResult":
         
-        metadata = {
+        id_data = {
             "model_type": cls.model_type,
             "experiment_type": cls.experiment_type,
             "subject_id": subject_id,
-            "training_repetitions": json.dumps(training_repetitions.tolist()),
-            "validation_repetitions": json.dumps(validation_repetitions.tolist()),
-            "test_repetitions": json.dumps(test_repetitions.tolist())
+            "training_repetitions": json.dumps(training_repetitions),
+            "validation_repetitions": json.dumps(validation_repetitions),
+            "test_repetitions": json.dumps(test_repetitions)
         }
-        id = ".".join(f"{k}:{v}" for k, v in metadata.items())
+        id = ".".join(f"{k}:{v}" for k, v in id_data.items())
 
         return cls(
             id=id,
@@ -173,14 +213,100 @@ class NeuralNetworkSingleSubjectTrainingResult(TrainingResult):
     @classmethod
     def _from_json_dict(cls, json_dict: dict):
         
-        metadata = dict(pair.split(":") for pair in json_dict["id"].split("."))
+        id_data = dict(pair.split(":") for pair in json_dict["id"].split("."))
 
         return cls(
             id=json_dict["id"],
-            subject_id=str(metadata["subject_id"]), 
-            training_repetitions=np.array(json.loads(metadata["training_repetitions"])), 
-            validation_repetitions=np.array(json.loads(metadata["validation_repetitions"])), 
-            test_repetitions=np.array(json.loads(metadata["test_repetitions"])), 
+            subject_id=int(id_data["subject_id"]), 
+            training_repetitions=list(json.loads(id_data["training_repetitions"])), 
+            validation_repetitions=list(json.loads(id_data["validation_repetitions"])), 
+            test_repetitions=list(json.loads(id_data["test_repetitions"])), 
+            training_data=json_dict.get("training_data", []),
+            test_result=json_dict.get("test_result", None)
+        )
+    
+
+@TrainingResult.register
+@dataclass
+class NeuralNetworkOtherSubjectsTrainingResult(TrainingResult):
+    train_subject_ids: list[int]
+    test_subject_ids: list[int]
+    training_repetitions: list[int]
+    validation_repetitions: list[int]
+    test_repetitions: list[int]
+
+    training_data: list[str] = field(default_factory=list)    
+    training_subjects_test_result: dict = field(default=None)
+    test_subjects_test_result: dict = field(default=None)
+
+    model_type: str = field(init=False, default='NN')
+    experiment_type: str = field(init=False, default='other-subjects')
+
+    @classmethod
+    def create(cls, 
+               train_subject_ids: list[int], 
+               test_subject_ids: list[int], 
+               training_repetitions: list[int], validation_repetitions: list[int], test_repetitions: list[int]) -> "NeuralNetworkOtherSubjectsTrainingResult":
+        
+        id_data = {
+            "model_type": cls.model_type,
+            "experiment_type": cls.experiment_type,
+            "train_subject_ids": json.dumps([int(subject_id) for subject_id in train_subject_ids]),
+            "test_subject_ids": json.dumps([int(subject_id) for subject_id in test_subject_ids]),
+            "training_repetitions": json.dumps(training_repetitions),
+            "validation_repetitions": json.dumps(validation_repetitions),
+            "test_repetitions": json.dumps(test_repetitions)
+        }
+        id = ".".join(f"{k}:{v}" for k, v in id_data.items())
+
+        return cls(
+            id=id,
+            train_subject_ids=train_subject_ids,
+            test_subject_ids=test_subject_ids, 
+            training_repetitions=training_repetitions, 
+            validation_repetitions=validation_repetitions, 
+            test_repetitions=test_repetitions
+        )
+
+    def save_training_data(self, epoch_training_data: dict): 
+        self.training_data.append(json.dumps(epoch_training_data))
+
+    def save_test_result(self, train_subjects_classification_report: dict, test_subjects_classification_report: dict): 
+        self.test_result = {
+            "train_subjects": {
+                "f1_score": train_subjects_classification_report['macro avg']['f1-score'],
+                "report": json.dumps(train_subjects_classification_report)
+            },
+            "test_subjects": {
+                "f1_score": test_subjects_classification_report['macro avg']['f1-score'],
+                "report": json.dumps(test_subjects_classification_report)
+            },
+        }
+
+    def to_json_dict(self):
+        return {
+            "id": self.id,        
+            "training_data": self.training_data,
+            "test_result": self.test_result
+        }
+    
+    @classmethod
+    def _can_create_from_json_dict(cls, json_dict: dict):
+        id = json_dict.get("id", "")
+        return f"model_type:{cls.model_type}" in id and f"experiment_type:{cls.experiment_type}" in id 
+
+    @classmethod
+    def _from_json_dict(cls, json_dict: dict):
+        
+        id_data = dict(pair.split(":") for pair in json_dict["id"].split("."))
+
+        return cls(
+            id=json_dict["id"],
+            train_subject_ids=list(json.loads(id_data["train_subject_ids"])), 
+            test_subject_ids=list(json.loads(id_data["test_subject_ids"])), 
+            training_repetitions=list(json.loads(id_data["training_repetitions"])), 
+            validation_repetitions=list(json.loads(id_data["validation_repetitions"])), 
+            test_repetitions=list(json.loads(id_data["test_repetitions"])), 
             training_data=json_dict.get("training_data", []),
             test_result=json_dict.get("test_result", None)
         )

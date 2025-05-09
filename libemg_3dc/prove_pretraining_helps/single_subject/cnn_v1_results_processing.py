@@ -23,7 +23,7 @@ if __name__ == "__main__":
     
 
     statistics_by_subject = []
-    for subject_id in [str(subject_id) for subject_id in range(0, 22)]:
+    for subject_id in range(0, 22):
         subject_records = [result for result in single_subject_results if result.subject_id == subject_id]
         subject_f1_scores = [result.test_result["f1_score"] for result in subject_records]
 

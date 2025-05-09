@@ -30,7 +30,7 @@ def apply_standardization_params(odh: OfflineDataHandler, mean_by_channels, std_
     return odh
 
 
-def split_by_sets(odh: OfflineDataHandler, train_sets: np.ndarray = None, validate_sets: np.ndarray = None, test_sets: np.ndarray = None):
+def split_on_3_sets(odh: OfflineDataHandler, train_reps: np.ndarray = None, validate_reps: np.ndarray = None, test_reps: np.ndarray = None):
     """
     all_repetition_ids = np.unique(np.concatenate(odh.reps)) # [0, 1, 2, 3]
 
@@ -39,7 +39,7 @@ def split_by_sets(odh: OfflineDataHandler, train_sets: np.ndarray = None, valida
     returns (train_measurements, validate_measurements, test_measurements)
     """
 
-    if train_sets is None or validate_sets is None or test_sets is None:
+    if train_reps is None or validate_reps is None or test_reps is None:
         train_measurements = odh.isolate_data("sets",[0])
         non_train_measurements  = odh.isolate_data("sets",[1])
         validate_measurements = non_train_measurements.isolate_data("reps",[0, 1])
@@ -58,7 +58,31 @@ def split_by_sets(odh: OfflineDataHandler, train_sets: np.ndarray = None, valida
             7: set2.isolate_data("reps",[2]),
             8: set2.isolate_data("reps",[3])
         }
-        train_measurements = reduce(lambda a, b: a + b, (map[set] for set in train_sets))
-        validate_measurements = reduce(lambda a, b: a + b, (map[set] for set in validate_sets))
-        test_measurements = reduce(lambda a, b: a + b, (map[set] for set in test_sets))
+        train_measurements = reduce(lambda a, b: a + b, (map[set] for set in train_reps))
+        validate_measurements = reduce(lambda a, b: a + b, (map[set] for set in validate_reps))
+        test_measurements = reduce(lambda a, b: a + b, (map[set] for set in test_reps))
         return (train_measurements, validate_measurements, test_measurements)
+
+def split_on_2_sets(odh: OfflineDataHandler, train_reps: np.ndarray, validate_reps: np.ndarray):
+    """
+    all_repetition_ids = np.unique(np.concatenate(odh.reps)) # [0, 1, 2, 3]
+
+    train_sets/test_sets expect array values from 1 to 8 
+
+    returns (train_measurements, test_measurements)
+    """
+    set1 = odh.isolate_data("sets",[0])
+    set2  = odh.isolate_data("sets",[1])
+    map = {
+        1: set1.isolate_data("reps",[0]),
+        2: set1.isolate_data("reps",[1]),
+        3: set1.isolate_data("reps",[2]),
+        4: set1.isolate_data("reps",[3]),
+        5: set2.isolate_data("reps",[0]),
+        6: set2.isolate_data("reps",[1]),
+        7: set2.isolate_data("reps",[2]),
+        8: set2.isolate_data("reps",[3])
+    }
+    train_measurements = reduce(lambda a, b: a + b, (map[set] for set in train_reps))
+    validate_measurements = reduce(lambda a, b: a + b, (map[set] for set in validate_reps))
+    return (train_measurements, validate_measurements)

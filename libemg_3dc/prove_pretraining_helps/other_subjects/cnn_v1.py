@@ -5,6 +5,7 @@ import shutil
 import numpy as np
 import sklearn
 import sklearn.metrics
+from sklearn.model_selection import LeaveOneOut
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from libemg.datasets import *
@@ -21,7 +22,7 @@ from utils.libemg_deep_learning import make_data_loader
 from utils.libemg_offline_data_handler_utils import get_standardization_params, apply_standardization_params, split_on_3_sets
 from utils.neural_networks.libemg_cnn_v1 import CNN_V1 as CNN
 from utils.subject_repetitions_cross_validation import generate_3_repetitions_folds
-from utils.training_results import TrainingResult, TrainingResults, NeuralNetworkSingleSubjectTrainingResult
+from utils.training_results import TrainingResult, TrainingResults, NeuralNetworkOtherSubjectsTrainingResult
 
 def add_model_graph_to_tensorboard(model, dataloader, tensorboard_writer):
     data, labels = next(iter(dataloader))
@@ -88,7 +89,7 @@ def create_log_callback(training_result: TrainingResult):
 
 seed = 123
 
-num_subjects = 1
+num_subjects = 3
 num_epochs = 50
 batch_size = 64
 
@@ -96,11 +97,13 @@ batch_size = 64
 adam_learning_rate = 1e-3
 adam_weight_decay=0 # 1e-5
 
-training_results = TrainingResults.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results.json')
+transfer_strategy = 'feature_extractor_with_fc_reset'
 
-# training_results.cleanup(
-#     model_type=NeuralNetworkSingleSubjectTrainingResult.model_type, 
-#     experiment_type=NeuralNetworkSingleSubjectTrainingResult.experiment_type)
+training_results = TrainingResults.load(path='libemg_3dc/prove_pretraining_helps/other_subjects/cnn_v1_results.json')
+
+training_results.cleanup(
+    model_type=NeuralNetworkOtherSubjectsTrainingResult.model_type, 
+    experiment_type=NeuralNetworkOtherSubjectsTrainingResult.experiment_type)
 
 if __name__ == "__main__":
     
@@ -112,18 +115,21 @@ if __name__ == "__main__":
     odh_full = dataset.prepare_data(subjects=all_subject_ids)
     odh = odh_full['All']
 
-    for subject_id in all_subject_ids:
+    subject_llo = LeaveOneOut()
 
-        subject_measurements  = odh.isolate_data("subjects", [subject_id])
+    for (train_subject_ids, test_subject_ids) in subject_llo.split(all_subject_ids):
+
+        target_subjects_measurements  = odh.isolate_data("subjects", list(train_subject_ids))
 
         repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6,7,8])
         for repetition_fold in repetition_folds:
             
-            (train_measurements, validate_measurements, test_measurements) = split_on_3_sets(subject_measurements, 
+            (train_measurements, validate_measurements, test_measurements) = split_on_3_sets(target_subjects_measurements, 
                 train_reps=repetition_fold['train_reps'], validate_reps=repetition_fold['validate_reps'], test_reps=repetition_fold['test_reps'])
             
-            training_result = NeuralNetworkSingleSubjectTrainingResult.create(
-                subject_id=subject_id, 
+            training_result: NeuralNetworkOtherSubjectsTrainingResult = NeuralNetworkOtherSubjectsTrainingResult.create(
+                train_subject_ids=train_subject_ids, 
+                test_subject_ids=test_subject_ids,
                 training_repetitions=repetition_fold['train_reps'], 
                 validation_repetitions=repetition_fold['validate_reps'], 
                 test_repetitions=repetition_fold['test_reps'])
@@ -136,7 +142,7 @@ if __name__ == "__main__":
             # perform windowing
             train_windows, train_metadata = train_measurements.parse_windows(200,100)
             validate_windows, validate_metadata = validate_measurements.parse_windows(200,100)
-            
+                        
             # train
             n_output = len(np.unique(np.vstack(train_metadata['classes'])))
             n_channels = train_windows.shape[1]
@@ -153,19 +159,29 @@ if __name__ == "__main__":
                 }
             model.fit(dataloader_dictionary, num_epochs, adam_learning_rate, adam_weight_decay, verbose=True, 
                     model_checkpoint=model_checkpoint, training_log_callback=log_callback)
-
-            # load trained model            
+            
+            # load trained model
             model_state, model_config = model_checkpoint.load_best_model_config()
             model.load_state_dict(model_state)
             classifier = EMGClassifier(None)
             classifier.model = model
-
-            # test        
+            
+            # test on target subjects
             test_measurements = apply_standardization_params(test_measurements, mean_by_channels=model_config["standardization_mean"], std_by_channels=model_config["standardization_std"])
-            test_windows, test_metadata = test_measurements.parse_windows(200,100)
-            predicted_classes, class_probabilities = classifier.run(test_windows)
-            print('Training finished.\nMetrics: \n', sklearn.metrics.classification_report(y_true=test_metadata['classes'], y_pred=predicted_classes, output_dict=False))
+            target_subjects_test_windows, target_subjects_test_metadata = test_measurements.parse_windows(200,100)
+            target_subjects_predicted_classes, target_subjects_class_probabilities = classifier.run(target_subjects_test_windows)
+            print('Target subjects metrics: \n', sklearn.metrics.classification_report(y_true=target_subjects_test_metadata['classes'], y_pred=target_subjects_predicted_classes, output_dict=False))
+            
+            # test on other subjects
+            other_subjects_measurements  = odh.isolate_data("subjects", list(test_subject_ids))
+            other_subjects_measurements = apply_standardization_params(test_measurements, mean_by_channels=model_config["standardization_mean"], std_by_channels=model_config["standardization_std"])
+            other_subjects_test_windows, other_subjects_test_metadata = other_subjects_measurements.parse_windows(200,100)
+            other_subjects_predicted_classes, other_subjects_class_probabilities = classifier.run(other_subjects_test_windows)
+            print('Test subjects metrics: \n', sklearn.metrics.classification_report(y_true=other_subjects_test_metadata['classes'], y_pred=other_subjects_predicted_classes, output_dict=False))
             
             # save results
-            training_result.save_test_result(sklearn.metrics.classification_report(y_true=test_metadata['classes'], y_pred=predicted_classes, output_dict=True))
+            training_result.save_test_result(
+                train_subjects_classification_report=sklearn.metrics.classification_report(y_true=target_subjects_test_metadata['classes'], y_pred=target_subjects_predicted_classes, output_dict=True), 
+                test_subjects_classification_report=sklearn.metrics.classification_report(y_true=other_subjects_test_metadata['classes'], y_pred=other_subjects_predicted_classes, output_dict=True))
             training_results.append(training_result)
+

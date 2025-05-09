@@ -20,9 +20,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 from global_utils.print_with_date import printd
 from global_utils.model_checkpoint import ModelCheckpoint
 from utils.libemg_deep_learning import make_data_loader
-from utils.libemg_offline_data_handler_utils import get_standardization_params, apply_standardization_params, split_by_sets
+from utils.libemg_offline_data_handler_utils import get_standardization_params, apply_standardization_params, split_on_3_sets
 from utils.neural_networks.libemg_cnn_v1 import CNN_V1 as CNN
-from utils.subject_repetitions_cross_validation import generate_repetitions_folds
+from utils.subject_repetitions_cross_validation import generate_3_repetitions_folds
 
 
 def add_model_graph_to_tensorboard(model, dataloader, tensorboard_writer):
@@ -129,7 +129,7 @@ if __name__ == "__main__":
             print('Pre-train model')
             # prepare pretraining data
             pre_measurements  = odh.isolate_data("subjects", pre_subject_ids)
-            (pre_train_measurements, pre_validate_measurements, pre_test_measurements) = split_by_sets(pre_measurements)
+            (pre_train_measurements, pre_validate_measurements, pre_test_measurements) = split_on_3_sets(pre_measurements)
             # apply standardization
             standardization_mean, standardization_std = get_standardization_params(pre_train_measurements)
             pre_train_measurements = apply_standardization_params(pre_train_measurements, standardization_mean, standardization_std)
@@ -171,10 +171,10 @@ if __name__ == "__main__":
         # prepare finetuning data
         post_subject_ids = [0] # substitude to the one from pretraining set to check if I didn't break the model, it should work great on the data is has seen already
         post_measurements =  odh.isolate_data("subjects", post_subject_ids)
-        repetition_folds = generate_repetitions_folds(all_repetitions=[1,2,3,4,5,6,7,8])
+        repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6,7,8])
         for repetition_fold in repetition_folds:
 
-        (post_train_measurements, post_validate_measurements, post_test_measurements) = split_by_sets(post_measurements)
+        (post_train_measurements, post_validate_measurements, post_test_measurements) = split_on_3_sets(post_measurements)
         # apply standardization
         post_train_measurements = apply_standardization_params(post_train_measurements, standardization_mean, standardization_std)
         post_validate_measurements = apply_standardization_params(post_validate_measurements, standardization_mean, standardization_std)
