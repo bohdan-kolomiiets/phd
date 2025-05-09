@@ -333,3 +333,84 @@ class NeuralNetworkOtherSubjectsTrainingExperiment(TrainingExperiment):
         )
         instance.set_processing_duration(json_dict.get("processing_duration", None))
         return instance
+    
+
+@TrainingExperiment.register
+@dataclass(eq=False)
+class NeuralNetworkFineTunedTrainigExperiment(TrainingExperiment):
+    subject_id: int
+    pre_train_experiment_id: str
+    train_reps: list[int]
+    validate_reps: list[int]
+    test_reps: list[int]
+    training_data: list[str] = field(default_factory=list)
+    test_result: dict = field(default=None)
+
+    model_type: str = field(init=False, default='NN')
+    experiment_type: str = field(init=False, default='fine-tuned')
+
+    @classmethod
+    def create(cls, 
+               subject_id: int, 
+               pre_train_experiment_id: str,
+               train_reps: list[int], validate_reps: list[int], test_reps: list[int]) -> "NeuralNetworkSingleSubjectTrainingExperiment":
+        
+        id_data = {
+            "model_type": cls.model_type,
+            "experiment_type": cls.experiment_type,
+            "subject_id": subject_id,
+            "train_reps": json.dumps(train_reps),
+            "validate_reps": json.dumps(validate_reps),
+            "test_reps": json.dumps(test_reps)
+        }
+        id = ".".join(f"{k}:{v}" for k, v in id_data.items())
+
+        return cls(
+            id=id,
+            pre_train_experiment_id=pre_train_experiment_id,
+            subject_id=subject_id, 
+            train_reps=train_reps, 
+            validate_reps=validate_reps, 
+            test_reps=test_reps
+        )
+
+    def save_training_data(self, epoch_training_data: dict): 
+        self.training_data.append(json.dumps(epoch_training_data))
+
+    def save_test_result(self, classification_report: dict): 
+        self.test_result = {
+            "f1_score": classification_report['macro avg']['f1-score'],
+            "report": json.dumps(classification_report)
+        }
+
+    def to_json_dict(self):
+        return {
+            "id": self.id,
+            "pre_train_experiment_id": self.pre_train_experiment_id,
+            "processing_duration": self.processing_duration, 
+            "training_data": self.training_data,
+            "test_result": self.test_result
+        }
+    
+    @classmethod
+    def _can_create_from_json_dict(cls, json_dict: dict):
+        id = json_dict.get("id", "")
+        return f"model_type:{cls.model_type}" in id and f"experiment_type:{cls.experiment_type}" in id 
+
+    @classmethod
+    def _from_json_dict(cls, json_dict: dict):
+        
+        id_data = dict(pair.split(":") for pair in json_dict["id"].split("."))
+
+        instance = cls(
+            id=json_dict["id"],
+            pre_train_experiment_id=json_dict["pre_train_experiment_id"],
+            subject_id=int(id_data["subject_id"]), 
+            train_reps=list(json.loads(id_data["train_reps"])), 
+            validate_reps=list(json.loads(id_data["validate_reps"])), 
+            test_reps=list(json.loads(id_data["test_reps"])), 
+            training_data=json_dict.get("training_data", []),
+            test_result=json_dict.get("test_result", None)
+        )
+        instance.set_processing_duration(json_dict.get("processing_duration", None))
+        return instance

@@ -105,7 +105,7 @@ if __name__ == "__main__":
         pre_model_checkpoint = ModelCheckpoint(pre_checkpoint_path, verbose=False)
         if os.path.isfile(pre_checkpoint_path): 
             print('Load existing pre-trained model')
-            pre_model_state, pre_model_config = pre_model_checkpoint.load_best_model_config()
+            pre_model_state, pre_model_config = pre_model_checkpoint.load()
             standardization_mean = pre_model_config['standardization_mean']
             standardization_std = pre_model_config['standardization_std']
             generator = torch.Generator().manual_seed(seed)
@@ -144,7 +144,7 @@ if __name__ == "__main__":
                 "validation_dataloader": make_data_loader(pre_validate_windows, pre_validate_metadata["classes"], batch_size=batch_size, generator=generator)
                 }
             pre_model.fit(pre_dataloader_dictionary, verbose=True, model_checkpoint=pre_model_checkpoint)
-            pre_model_state, pre_model_config = pre_model_checkpoint.load_best_model_config()
+            pre_model_state, pre_model_config = pre_model_checkpoint.load()
             pre_model.load_state_dict(pre_model_state)
         
             pre_classifier = EMGClassifier(None)
@@ -180,7 +180,7 @@ if __name__ == "__main__":
             "validation_dataloader": make_data_loader(post_validate_windows, post_validate_metadata["classes"], batch_size=batch_size, generator=generator)
             }
         post_model.fit(post_dataloader_dictionary, verbose=True, model_checkpoint=post_model_checkpoint)
-        post_model_state, _ = post_model_checkpoint.load_best_model_config()
+        post_model_state, _ = post_model_checkpoint.load()
         post_model.load_state_dict(post_model_state)
 
         post_classifier = EMGClassifier(None)

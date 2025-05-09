@@ -25,3 +25,12 @@ class ModelCheckpoint:
         """
         checkpoint = torch.load(self.path, weights_only=False)
         return (checkpoint["model_state"], checkpoint["model_config"])
+    
+
+    @staticmethod
+    def load(path: str):
+        """
+        Returns: (state, config)
+        """
+        checkpoint = torch.load(path, weights_only=False)
+        return (checkpoint["model_state"], checkpoint["model_config"])

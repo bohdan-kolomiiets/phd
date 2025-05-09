@@ -2,11 +2,12 @@ import os
 import random
 import sys
 import time
+from typing import Iterator, cast
 import shutil
-from typing import Iterator
 import numpy as np
 import sklearn
 import sklearn.metrics
+from sklearn.model_selection import LeaveOneOut
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from libemg.datasets import *
@@ -18,12 +19,13 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 
 from global_utils.print_with_date import printd
+from global_utils.collection_utils import group_by
 from global_utils.model_checkpoint import ModelCheckpoint
 from utils.libemg_deep_learning import make_data_loader
 from utils.libemg_offline_data_handler_utils import get_standardization_params, apply_standardization_params, split_data_on_3_sets_by_reps
 from utils.neural_networks.libemg_cnn_v1 import CNN_V1 as CNN
 from utils.subject_repetitions_cross_validation import generate_3_repetitions_folds
-from libemg_3dc.utils.training_experiments import TrainingExperiment, TrainingExperiments, NeuralNetworkSingleSubjectTrainingExperiment
+from libemg_3dc.utils.training_experiments import TrainingExperiment, TrainingExperiments, NeuralNetworkOtherSubjectsTrainingExperiment, NeuralNetworkFineTunedTrainigExperiment
 
 def add_model_graph_to_tensorboard(model, dataloader, tensorboard_writer):
     data, labels = next(iter(dataloader))
@@ -86,21 +88,31 @@ def create_log_callback(training_result: TrainingExperiment):
         
     return log_callback
 
-def generate_cross_validation_folds(all_subject_ids: list[int]) -> Iterator["NeuralNetworkSingleSubjectTrainingExperiment"]:
+
+def generate_cross_validation_folds(all_subject_ids: list[int], best_pre_training_experiments: dict[int, dict]) -> Iterator["NeuralNetworkFineTunedTrainigExperiment"]:
     for subject_id in all_subject_ids:
         repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6,7,8])
         for repetition_fold in repetition_folds:
-            experiment = NeuralNetworkSingleSubjectTrainingExperiment.create(
-                subject_id=subject_id, 
+            training_result: NeuralNetworkFineTunedTrainigExperiment = NeuralNetworkFineTunedTrainigExperiment.create(
+                subject_id=subject_id,
+                pre_train_experiment_id=best_pre_training_experiments[subject_id].id,
                 train_reps=repetition_fold['train_reps'], 
                 validate_reps=repetition_fold['validate_reps'], 
                 test_reps=repetition_fold['test_reps'])
-            yield experiment
+            yield training_result
 
+
+def find_best_experiments_per_test_subject(other_subjects_experiments) -> dict[int, dict]:
+    experiments_per_test_subject = group_by(other_subjects_experiments, key_selector= lambda experiment: experiment.test_subject_ids[0])
+    best_pre_training_experiments: dict[int, dict] = {}
+    for test_subject_id, test_subject_experiments in experiments_per_test_subject.items():
+        best_experiment = min(test_subject_experiments, key=lambda experiment: experiment.test_subjects_test_result["f1_score"])
+        best_pre_training_experiments[test_subject_id] = best_experiment
+    return best_pre_training_experiments
 
 seed = 123
 
-num_subjects = 22
+num_subjects = 3
 num_epochs = 50
 batch_size = 64
 
@@ -108,11 +120,16 @@ batch_size = 64
 adam_learning_rate = 1e-3
 adam_weight_decay=0 # 1e-5
 
-processed_experiments = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results.json')
+transfer_strategy = 'feature_extractor_with_fc_reset'
+
+other_subjects_experiments = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/other_subjects/cnn_v1_results.json')
+
+fine_tuned_experiments = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/fine_tuned/cnn_v1_results.json')
 
 # training_results.cleanup(
-#     model_type=NeuralNetworkSingleSubjectTrainingResult.model_type, 
-#     experiment_type=NeuralNetworkSingleSubjectTrainingResult.experiment_type)
+#     model_type=NeuralNetworkOtherSubjectsTrainingResult.model_type, 
+#     experiment_type=NeuralNetworkOtherSubjectsTrainingResult.experiment_type)
+           
 
 if __name__ == "__main__":
     
@@ -120,69 +137,88 @@ if __name__ == "__main__":
 
     all_subject_ids = list(range(0,num_subjects))
 
+    best_pre_training_experiments = find_best_experiments_per_test_subject(other_subjects_experiments.data)
+    all_possible_fine_tune_experiments  = generate_cross_validation_folds(all_subject_ids, best_pre_training_experiments)
+
     dataset = get_dataset_list()['3DC']()
     odh_full = dataset.prepare_data(subjects=all_subject_ids)
     odh = odh_full['All']
 
-    all_possible_experiments  = generate_cross_validation_folds(all_subject_ids)
-
-    for experiment in all_possible_experiments:
+    for fine_tuned_experiment in all_possible_fine_tune_experiments:
         
-        if(experiment in processed_experiments.data):
+        if(fine_tuned_experiment in fine_tuned_experiments.data):
             continue
 
         start = time.perf_counter()
 
-        subject_measurements  = odh.isolate_data("subjects", [experiment.subject_id])
+        pre_train_experiment = best_pre_training_experiments[fine_tuned_experiment.subject_id]
+        pre_trained_model_state, pre_trained_model_config = ModelCheckpoint.load(f'libemg_3dc/checkpoints/{pre_train_experiment.id}.pt')
+
+        subject_measurements  = odh.isolate_data("subjects", [fine_tuned_experiment.subject_id])
 
         (train_measurements, validate_measurements, test_measurements) = split_data_on_3_sets_by_reps(
             odh=subject_measurements, 
-            train_reps=experiment.train_reps, 
-            validate_reps=experiment.validate_reps, 
-            test_reps=experiment.test_reps)
+            train_reps=fine_tuned_experiment.train_reps, 
+            validate_reps=fine_tuned_experiment.validate_reps, 
+            test_reps=fine_tuned_experiment.test_reps)
 
         # apply standardization
-        standardization_mean, standardization_std = get_standardization_params(train_measurements)
+        standardization_mean = pre_trained_model_config["standardization_mean"]
+        standardization_std = pre_trained_model_config["standardization_std"]
         train_measurements = apply_standardization_params(train_measurements, standardization_mean, standardization_std)
         validate_measurements = apply_standardization_params(validate_measurements, standardization_mean, standardization_std)
         
         # perform windowing
         train_windows, train_metadata = train_measurements.parse_windows(200,100)
         validate_windows, validate_metadata = validate_measurements.parse_windows(200,100)
-        
-        # train
-        n_output = len(np.unique(np.vstack(train_metadata['classes'])))
-        n_channels = train_windows.shape[1]
-        n_samples = train_windows.shape[2]
-        n_filters = batch_size
-        log_callback = create_log_callback(experiment)
+                    
+        # fine-tune pre-trained model
         generator = torch.Generator().manual_seed(seed)
-        model = CNN(n_output, n_channels, n_samples, n_filters = batch_size, generator=generator)
+        pre_trained_model = CNN(
+            n_output=pre_trained_model_config["n_output"], 
+            n_channels=pre_trained_model_config["n_channels"], 
+            n_samples=pre_trained_model_config["n_samples"], 
+            n_filters=pre_trained_model_config["n_filters"], 
+            generator=generator)
+        pre_trained_model.load_state_dict(pre_trained_model_state)
+        pre_trained_model.apply_transfer_strategy(strategy=transfer_strategy)
+
         model_checkpoint = create_model_checkpoint(
-            f'libemg_3dc/checkpoints/{experiment.id}.pt', standardization_mean, standardization_std, n_output, n_channels, n_samples, n_filters)
+            path=f"libemg_3dc/checkpoints/{fine_tuned_experiment.id}.pt", 
+            standardization_mean=pre_trained_model_config["standardization_mean"], standardization_std=pre_trained_model_config["standardization_std"], 
+            n_output=pre_trained_model_config["n_output"], n_channels=pre_trained_model_config["n_channels"], n_samples=pre_trained_model_config["n_samples"], n_filters=pre_trained_model_config["n_filters"])
         dataloader_dictionary = {
             "training_dataloader": make_data_loader(train_windows, train_metadata["classes"], batch_size=batch_size, generator=generator),
             "validation_dataloader": make_data_loader(validate_windows, validate_metadata["classes"], batch_size=batch_size, generator=generator)
             }
-        model.fit(dataloader_dictionary, num_epochs, adam_learning_rate, adam_weight_decay, verbose=True, 
+        log_callback = create_log_callback(fine_tuned_experiment)
+        pre_trained_model.fit(dataloader_dictionary, num_epochs, adam_learning_rate, adam_weight_decay, verbose=True, 
                 model_checkpoint=model_checkpoint, training_log_callback=log_callback)
 
-        # load trained model            
-        model_state, model_config = model_checkpoint.load()
-        model.load_state_dict(model_state)
-        classifier = EMGClassifier(None)
-        classifier.model = model
+        # load fine-tuned model
+        generator = torch.Generator().manual_seed(seed)
+        fine_tuned_model_state, fine_tuned_model_config = ModelCheckpoint.load(f"libemg_3dc/checkpoints/{fine_tuned_experiment.id}.pt")
+        fine_tuned_model = CNN(
+            n_output=fine_tuned_model_config["n_output"], 
+            n_channels=fine_tuned_model_config["n_channels"], 
+            n_samples=fine_tuned_model_config["n_samples"], 
+            n_filters=fine_tuned_model_config["n_filters"], 
+            generator=generator)
+        fine_tuned_model.load_state_dict(fine_tuned_model_state)
+        fine_tuned_classifier = EMGClassifier(None)
+        fine_tuned_classifier.model = fine_tuned_model
 
-        # test        
-        test_measurements = apply_standardization_params(test_measurements, mean_by_channels=model_config["standardization_mean"], std_by_channels=model_config["standardization_std"])
+        # test
+        test_measurements = apply_standardization_params(test_measurements, mean_by_channels=fine_tuned_model_config["standardization_mean"], std_by_channels=fine_tuned_model_config["standardization_std"])
         test_windows, test_metadata = test_measurements.parse_windows(200,100)
-        predicted_classes, class_probabilities = classifier.run(test_windows)
-        print('Training finished.\nMetrics: \n', sklearn.metrics.classification_report(y_true=test_metadata['classes'], y_pred=predicted_classes, output_dict=False))
+        predicted_classes, class_probabilities = fine_tuned_classifier.run(test_windows)
+        print('Metrics: \n', sklearn.metrics.classification_report(y_true=test_metadata["classes"], y_pred=predicted_classes, output_dict=False))
         
         # save results
-        experiment.save_test_result(classification_report=sklearn.metrics.classification_report(y_true=test_metadata['classes'], y_pred=predicted_classes, output_dict=True))
+        fine_tuned_experiment.save_test_result(
+            classification_report=sklearn.metrics.classification_report(y_true=test_metadata["classes"], y_pred=predicted_classes, output_dict=True))
         
         end = time.perf_counter()
-        experiment.set_processing_duration(duration=int(end-start))
+        fine_tuned_experiment.set_processing_duration(duration=int(end-start))
 
-        processed_experiments.append(experiment)
+        fine_tuned_experiments.append(fine_tuned_experiment)
