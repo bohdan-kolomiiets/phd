@@ -1,5 +1,5 @@
 import os
-from typing import Union
+from typing import Union, Optional
 from pathlib import Path
 import uuid
 import numpy as np
@@ -9,12 +9,12 @@ from dataclasses import dataclass, field
 
 from global_utils.dict_utils import get_nested
 
-@dataclass
 @dataclass(eq=False)
 class TrainingExperiment(ABC):
     id: str
     model_type: str
     experiment_type: str
+    processing_duration: Optional[float] = field(default=None, init=False)
 
     _registry = []
 
@@ -29,6 +29,9 @@ class TrainingExperiment(ABC):
     
     def __hash__(self):
         return hash(self.id)
+    
+    def set_processing_duration(self, duration: float):
+        self.processing_duration = duration
 
     @classmethod
     @abstractmethod
@@ -210,7 +213,8 @@ class NeuralNetworkSingleSubjectTrainingExperiment(TrainingExperiment):
 
     def to_json_dict(self):
         return {
-            "id": self.id,        
+            "id": self.id,
+            "processing_duration": self.processing_duration, 
             "training_data": self.training_data,
             "test_result": self.test_result
         }
@@ -225,7 +229,7 @@ class NeuralNetworkSingleSubjectTrainingExperiment(TrainingExperiment):
         
         id_data = dict(pair.split(":") for pair in json_dict["id"].split("."))
 
-        return cls(
+        instance = cls(
             id=json_dict["id"],
             subject_id=int(id_data["subject_id"]), 
             train_reps=list(json.loads(id_data["train_reps"])), 
@@ -234,6 +238,8 @@ class NeuralNetworkSingleSubjectTrainingExperiment(TrainingExperiment):
             training_data=json_dict.get("training_data", []),
             test_result=json_dict.get("test_result", None)
         )
+        instance.set_processing_duration(json_dict.get("processing_duration", None))
+        return instance
     
 
 @TrainingExperiment.register
@@ -248,6 +254,7 @@ class NeuralNetworkOtherSubjectsTrainingExperiment(TrainingExperiment):
     training_data: list[str] = field(default_factory=list)    
     training_subjects_test_result: dict = field(default=None)
     test_subjects_test_result: dict = field(default=None)
+
 
     model_type: str = field(init=False, default='NN')
     experiment_type: str = field(init=False, default='other-subjects')
@@ -297,7 +304,8 @@ class NeuralNetworkOtherSubjectsTrainingExperiment(TrainingExperiment):
 
     def to_json_dict(self):
         return {
-            "id": self.id,        
+            "id": self.id,     
+            "processing_duration": self.processing_duration,   
             "training_data": self.training_data,
             "test_result": self.test_result
         }
@@ -312,7 +320,7 @@ class NeuralNetworkOtherSubjectsTrainingExperiment(TrainingExperiment):
         
         id_data = dict(pair.split(":") for pair in json_dict["id"].split("."))
 
-        return cls(
+        instance = cls(
             id=json_dict["id"],
             train_subject_ids=list(json.loads(id_data["train_subject_ids"])), 
             test_subject_ids=list(json.loads(id_data["test_subject_ids"])), 
@@ -323,3 +331,5 @@ class NeuralNetworkOtherSubjectsTrainingExperiment(TrainingExperiment):
             training_subjects_test_result=get_nested(value=json_dict, key_path="test_result:train_subjects", default=None),
             test_subjects_test_result=get_nested(value=json_dict, key_path="test_result:test_subjects", default=None)
         )
+        instance.set_processing_duration(json_dict.get("processing_duration", None))
+        return instance

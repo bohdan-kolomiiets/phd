@@ -1,6 +1,7 @@
 import os
 import random
 import sys
+import time
 from typing import Iterator
 import shutil
 import numpy as np
@@ -137,6 +138,8 @@ if __name__ == "__main__":
         if(experiment in processed_experiments.data):
             continue
 
+        start = time.perf_counter()
+
         target_subjects_measurements  = odh.isolate_data("subjects", experiment.train_subject_ids)
 
         (train_measurements, validate_measurements, test_measurements) = split_data_on_3_sets_by_reps(
@@ -194,4 +197,8 @@ if __name__ == "__main__":
         experiment.save_test_result(
             train_subjects_classification_report=sklearn.metrics.classification_report(y_true=target_subjects_test_metadata['classes'], y_pred=target_subjects_predicted_classes, output_dict=True), 
             test_subjects_classification_report=sklearn.metrics.classification_report(y_true=other_subjects_test_metadata['classes'], y_pred=other_subjects_predicted_classes, output_dict=True))
+        
+        end = time.perf_counter()
+        experiment.set_processing_duration(duration=end-start)
+
         processed_experiments.append(experiment)
