@@ -106,13 +106,13 @@ def find_best_experiments_per_test_subject(other_subjects_experiments) -> dict[i
     experiments_per_test_subject = group_by(other_subjects_experiments, key_selector= lambda experiment: experiment.test_subject_ids[0])
     best_pre_training_experiments: dict[int, dict] = {}
     for test_subject_id, test_subject_experiments in experiments_per_test_subject.items():
-        best_experiment = min(test_subject_experiments, key=lambda experiment: experiment.test_subjects_test_result["f1_score"])
+        best_experiment = max(test_subject_experiments, key=lambda experiment: experiment.training_subjects_test_result["f1_score"])
         best_pre_training_experiments[test_subject_id] = best_experiment
     return best_pre_training_experiments
 
 seed = 123
 
-num_subjects = 3
+num_subjects = 8
 num_epochs = 50
 batch_size = 64
 
@@ -120,7 +120,7 @@ batch_size = 64
 adam_learning_rate = 1e-3
 adam_weight_decay=0 # 1e-5
 
-transfer_strategy = 'feature_extractor_with_fc_reset'
+transfer_strategy = 'finetune_with_fc_reset'
 
 other_subjects_experiments = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/other_subjects/cnn_v1_results.json')
 
