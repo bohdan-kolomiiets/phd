@@ -112,7 +112,7 @@ def find_best_experiments_per_test_subject(other_subjects_experiments) -> dict[i
 
 seed = 123
 
-num_subjects = 8
+num_subjects = 22
 num_epochs = 50
 batch_size = 64
 
@@ -120,9 +120,9 @@ batch_size = 64
 adam_learning_rate = 1e-3
 adam_weight_decay=0 # 1e-5
 
-transfer_strategy = 'finetune_with_fc_reset'
+transfer_strategy = 'finetune_without_fc_reset'
 
-other_subjects_experiments = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/other_subjects/cnn_v1_results.json')
+other_subjects_experiments = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/other_subjects/cnn_v1_results(ready).json')
 
 fine_tuned_experiments = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/fine_tuned/cnn_v1_results.json')
 
