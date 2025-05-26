@@ -91,7 +91,10 @@ def create_log_callback(training_result: TrainingExperiment):
 
 def generate_cross_validation_folds(all_subject_ids: list[int], best_pre_training_experiments: dict[int, dict]) -> Iterator["NeuralNetworkFineTunedTrainigExperiment"]:
     for subject_id in all_subject_ids:
-        repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6,7,8])
+        # repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6,7,8])
+        # repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6])
+        # repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4])
+        repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3])
         for repetition_fold in repetition_folds:
             training_result: NeuralNetworkFineTunedTrainigExperiment = NeuralNetworkFineTunedTrainigExperiment.create(
                 subject_id=subject_id,
@@ -120,7 +123,7 @@ batch_size = 64
 adam_learning_rate = 1e-3
 adam_weight_decay=0 # 1e-5
 
-transfer_strategy = 'finetune_without_fc_reset'
+transfer_strategy = 'finetune_with_fc_reset'
 
 other_subjects_experiments = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/other_subjects/cnn_v1_results(ready).json')
 

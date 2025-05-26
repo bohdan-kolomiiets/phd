@@ -19,22 +19,26 @@ def stringify_list(self_training_f1_score_means):
     return ', '.join([f"{v:.3f}" for v in self_training_f1_score_means])
 
 
-agrs_parser = argparse.ArgumentParser(description="Compare two classification models")
-agrs_parser.add_argument('--transfer_learning_strategy', type=str, required=False, default='finetune_without_fc_reset', help='pass "finetune_with_fc_reset" or "finetune_without_fc_reset"')
+# agrs_parser = argparse.ArgumentParser(description="Compare two classification models")
+# agrs_parser.add_argument('--transfer_learning_strategy', type=str, required=False, default='finetune_without_fc_reset', help='pass "finetune_with_fc_reset" or "finetune_without_fc_reset"')
 
 if __name__ == "__main__":
 
-    args = agrs_parser.parse_args()
+    # args = agrs_parser.parse_args()
+    # print()
+    # print(f"Performing hypothesis testing for transfer learning strategy '{args.transfer_learning_strategy}'.")
+    # print()
 
-    print()
-    print(f"Performing hypothesis testing for transfer learning strategy '{args.transfer_learning_strategy}'.")
-    print()
-
-    single_subject_experiments = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(ready).json')
+    single_subject_path = 'libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(3 reps).json'
+    fine_tuned_path = f'libemg_3dc/prove_pretraining_helps/fine_tuned/cnn_v1_results(3 reps).json'
+   
+    single_subject_experiments = TrainingExperiments.load(path=single_subject_path)
+    print(f"Loaded {len(single_subject_experiments.data)} experiments from '{single_subject_path}'")
     single_subject_experiments: list[NeuralNetworkSingleSubjectTrainingExperiment] = [
         cast(NeuralNetworkSingleSubjectTrainingExperiment, result) for result in single_subject_experiments.data if isinstance(result, NeuralNetworkSingleSubjectTrainingExperiment)]
     
-    fine_tuned_experiments = TrainingExperiments.load(path=f'libemg_3dc/prove_pretraining_helps/fine_tuned/cnn_v1_results(ready {args.transfer_learning_strategy}).json')
+    fine_tuned_experiments = TrainingExperiments.load(path=fine_tuned_path)
+    print(f"Loaded {len(fine_tuned_experiments.data)} experiments from '{fine_tuned_path}'")
     fine_tuned_experiments: list[NeuralNetworkFineTunedTrainigExperiment] = [
         cast(NeuralNetworkFineTunedTrainigExperiment, result) for result in fine_tuned_experiments.data if isinstance(result, NeuralNetworkFineTunedTrainigExperiment)]
 

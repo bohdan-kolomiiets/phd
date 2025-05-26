@@ -1,0 +1,619 @@
+Help me write the article to the journal. Describe clearly what I've done using academic style and academic Enlish so it corresponds to the style in this area (signal processing, ML, biomedical, EMG), looks and sounds proffesional, but don't overcomplicate the language so it doesn't sound artificial. Also, please, correct any grammar, style, you found. If you found any logic issues, you can correct obvious ones by yourself, but if you are not sure, please ask me to confirm your understanding. 
+
+I added articles about deep learning and EMG so you can use them where needed. But, you also can use other articles you find in the Internet that are suitable in the text.
+
+Also, I added file "Literature review.pdf", - this is a literature review I did recently. You can use that as well, it is not published anywhere and not going to be, just use it as an additional source, but not primary one.
+
+Here are requirements for authors from the journal's website (https://radap.kpi.ua/index.php/radiotechnique/about/submissions). Article has to be in the LaTex format.
+```
+
+1. According to the decree of the Presidium of HAC of Ukraine from 15.01.2003 № 7-05/1 papers should have the necessary elements: problem statement, analysis of research and publications, in which it is founded the decision of this problem, the selection name of the problem, which is dedicated to the given paper, the formulation of the objectives of the article; presentation of material, the research conclusions, the prospects for its further development. In this regard, scientific and technical articles and reports of scientific research achievements and practical results should be structured - divided into sections with headings. For example, scientific and technical articles (posts), or materials on the description (presentation) of new equipment: Introduction, problem statement, theoretical statements, methods and means of experimental research, principles and circuit-design features of developed equipment, experiments, tests developed equipment, recommendations and conclusions.
+2. The manuscript, which the last page signed by all authors, accompanied granted Ukrainian and English names and initials of authors, article title, keyword, text annotations - 1 note, Information about authors (surname, name, surname, academic degree, academic status, place of work - business name, organization, indicating the city and state location, position, home or business address, telephone number) - 1 note; diskette with the files specified materials.
+3. The article must adhere to the terminology adopted state standards - volume, using a new term or abbreviation should decipher and explain them.
+4. Formulas, figures, tables, partitions must be a simple continuous Arabic numbering. Do not numbered sections and formulas, if they have no reference in the text. Photo illustrations, if possible, should replace the pictures. Accommodation photo illustrations should be agreed with the Editorial Board.
+5. Papers should be typed in a text editor (headset Times New Roman), spacing - single. Full (including placement of illustrations) volume provides them materials should be at: Scientific-technical articles - 4 - 8 pages; review articles not more than 12 pages, an achievement of scientific results - from 2 to 4 p. Allowed to exceed the amount specified in consultation with the editorial.
+6. Page text box: top 25 mm, bottom 30 mm, left 30, right 20 mm, header and footer margins (top, bottom) 12,5 mm, paragraph 7 mm.
+7. The location and design rules text of the article must conform to the previous issue of issue of NTUU "KPI" this series:
+- skipping a line and leveled “from the center” - title in capital letters (Times New Roman, 14 points, bold);
+- skipping a line and leveled "the center" - names of the authors (Times New Roman, 14 pt, italic, bold);
+- missing line - text (Times New Roman, 14 pt, spacing - single);
+- for a list of references - font Times New Roman, 12 pt, spacing - single.
+Sections are not separated. The section headings select “bold” and direct in separately the line of text, leveled “from the center” (Times New Roman, 14 pt).
+
+8. Formulas mark typed in the Formula Editor as separate objects size: variable - 14 pt, a large index-10 pt, small index - 8 pt, large symbol - 18 pt, small symbol - 12 pt, Cyrillic, Greek and digits, straight, Latin-italic.
+9. The list of references is given in the order of mention with numbers in squre brackets (!!!) in the text using Harvard style. Only accessible (must have a URL) and preferably well-known sources (with a DOI) should be cited. Use the most recent studies as the source. Ensure references are correct and accessible, provide accessible link (prefetably as doi link, if available), add access date to reference. Check that reference is accessible in the Internet. Use \cite and \bibitem, \url for references.
+
+Article must have sections such as below. Write those sections considering work that was done in my research: 
+1. Introduction (need to contain):
+  - draw the current state of things in sEMG, areas where it is applied (like rehabilitaion, disabilities, robotics, etc.)
+  - mention particularities of the EMG signal, importance of the electords placement
+  - mention processing methods that are used for EMG, their advantages and limitations
+  - mention how lack of data for training machine learning models constrains from getting a good model
+  - mention how convolutional neural networks can help improve accuracy comparing with other ML methods.
+  - mention what transfer lerning strategies exist and wchich give better results.
+  - mention that advances in wearable electonics begin to allow of use of convolutions neural networks for real time processing(reference articles if it is true) 
+  - analyse recent research and publications
+2. Statement of the problem:
+  - mention the idea of transfer learning to improve accuracy
+  - state what this article investigates: how to do this transfer learning, what strategy gives better results 
+3. Dataset:
+  - describe the dataset, its subjects, EMG armband that was used, how electrods were placed, rererence original article in the scope of which this dataset was collected whenever possible
+4. Methods
+  - descibe neural network architecture
+  - describe what tools were used for processing experiments
+  - describe how NN was applied
+    - training and testing on the same subject
+    - training on one subjects, but testing on other
+    - transfer learning
+5. Results
+  - describe results
+  - describe how different approaches for training were compared
+  - what tests were executed to prove that results are statistically significant
+  - compare results in this work with the results from autor Ulysse Côté-Allard and other similar works, mention that the purpose was to discover what transfer learning strategy is better and that NN model architecture difinetly could be improved to provide better accuracy.
+6. Conclusions
+ - draw conclusions that can be made from the results
+ - mention limitations of made experiments, used NN model, and describe further steps/improvements that could be made to.
+7. References
+
+Here are examples of already published articles in this journal I want to be published at (I give you them just as the additonal example of style):
+https://radap.kpi.ua/radiotechnique/article/view/2009/1607
+https://radap.kpi.ua/radiotechnique/article/view/2042/1609
+https://radap.kpi.ua/radiotechnique/article/view/2053/1610
+```
+
+Also, I attach file with the LaTex template jornal gives to be used. 
+
+
+So, let me explain what I've done.
+
+The purpose of my work was to explore if and how much transfer learning can improve gesture classification accuracy, model stability, and reduce the need for big amount of data for finetuning (finetuning or fixed feature extractor https://docs.pytorch.org/tutorials/beginner/transfer_learning_tutorial.html ). 
+
+I used python library called LibEmg (https://libemg.github.io/libemg/index.html) to facilitate with data processing, training and testing NN.
+Here is the article introducing this library - "LibEMG: An Open Source Library to Facilitate the Exploration of Myoelectric Control"(https://ieeexplore.ieee.org/abstract/document/10214558).
+
+This work used the dataset collected by Ulysse Côté-Allard and presented in the article "A Low-Cost, Wireless, 3-D-Printed Custom Armband for sEMG Hand Gesture Recognition" (https://www.mdpi.com/1424-8220/19/12/2811). 
+
+With the recent advent of deep learning, the raw sEMG signal can be employed directly for gesture classification [36,38], something which was considered “impractical" before [4].
+[4] Oskoei, M.A.; Hu, H. Myoelectric control systems—A survey. Biomed. Signal Process. Control 2007, 2, 275–294. [Google Scholar] [CrossRef]
+[36] Côté-Allard, U.; Fall, C.L.; Drouin, A.; Campeau-Lecours, A.; Gosselin, C.; Glette, K.; Laviolette, F.; Gosselin, B. Deep Learning for Electromyographic Hand Gesture Signal Classification Using Transfer Learning. IEEE Trans. Neural Syst. Rehabil. Eng. 2019, 27, 760–771. [Google Scholar] [Green Version]
+[38] Zia ur Rehman, M.; Waris, A.; Gilani, S.; Jochumsen, M.; Niazi, I.; Jamil, M.; Farina, D.; Kamavuako, E. Multiday EMG-based classification of hand motions with deep learning techniques. Sensors 2018, 18, 2497. [Google Scholar] [CrossRef] [PubMed]
+
+Raw sEMG was used as input to the NN for classification.
+The raw data was passed as an image of shape Channels X Samples (10×200) to a ConvNet. 
+
+Result Raw EMG CNN that was used in my study is based on the guidelines from article "Design a 1D-CNN'S to classify surface EMG (SEMG) signals. Available from: https://www.researchgate.net/publication/377369067_Design_a_1D-CNN'S_to_classify_surface_EMG_SEMG_signals [accessed May 25 2025]." following established conventions from this article: 
+```
+After pooling layer, feed-forward ANN procedures are done using the fully-connected (FC) layer asclassifier layer (Amado Laezza, 2018). 
+It is a conventional neural network. 
+As mentioned above, the last pooling or convolutional layer in the form of flattened vector is the input to FC layer. 
+So, the FC layer output refers to type class for input signal (Ghosh et al., 2020). 
+The smaller datasets lead to CNN overfitting. 
+To solve the overfitting problem, Dropout and Batch normalization layers are added to overcome this problem in CNN’s. 
+To modify CNN’s, numerous aspects are adopted such asactivation, loss and optimization functions (Alzubaidi et al., 2021).
+
+References:
+- Alzubaidi, L., Zhang, J., Humaidi, A. J., Al-Dujaili, A., Duan, Y., Al-Shamma, O., Santamaría, J., Fadhel,M. A., Al-Amidie, M., & Farhan, L. (2021). Review of deep learning: Concepts, CNN architectures,challenges, applications, future directions. Journal of Big Data, 8, 1–74.
+- Amado Laezza, R. (2018). Deep neural networks for myoelectric pattern recognition-An implementationfor multifunctional control. 
+- Ghosh, A., Sufian, A., Sultana, F., Chakrabarti, A., & De, D. (2020). Fundamental concepts of convolutionalneural network. Recent Trends and Advances in Artificial Intelligence and Internet of Things, 519–567. 
+```
+
+Also, CNN "Raw EMG ConvNet" from the article "A Low-Cost, Wireless, 3-D-Printed Custom Armband for sEMG Hand Gesture Recognition" (https://www.mdpi.com/1424-8220/19/12/2811#B36-sensors-19-02811 ) was taken into account when deciding on what CNN to use in my study.
+
+Resulted CNN consists of 3 convolutional layers, and one final fully connected layer of 11 neurons representing 11 gestures classes.
+Each convolutional layer applies batch normalization and relu activation function, layer 1: 10->64 neurons, layer2 : 64 -> 32 neurons, layer 3: 32 -> 16 neurons, final layer 4 is a fully connected layer with 11 neurons.
+
+CrossEntropyLoss was used as a loss function.
+I used Glorot uniform/xavier for weights initialization of NN model, zero for bias.
+I used Adam optimizer with initial learning rate set to 1e-3, and CosineAnnealingLR scheduler to adapt learning rate and stop training if training curve goes to the plateau (maximum 50 epochs allowed, but mostly training was took around 15 epochs after which training ).
+Here are parameters of optimizer,scheduler, early stopping mechanism in python:
+````
+  adam_learning_rate = 1e-3
+  optimizer = optim.Adam(self.parameters(), lr=adam_learning_rate, weight_decay=0)
+  num_epochs = 50
+  scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs, eta_min=adam_learning_rate/100)
+  early_stopping = EarlyStopping(patience=4, acceptable_delta=0.03)
+
+```
+I used seeding for pytorch and and other random-related functions, to make results reproducable across runs and for other researches.
+
+
+Recordings were split on windows of size 200 samples per window, with increment/intersection of 100 samples.
+
+
+Worth mentioning that because of how this dataset was collected (data acquisition protocol), model doesn't show good results when trained on one part of subjects and tested on another part of subjects that model hadn't seen before.
+Here is the data acquisition protocol from the article "A Low-Cost, Wireless, 3-D-Printed Custom Armband for sEMG Hand Gesture Recognition":
+"Before the recording started, both the Myo and the 3DC Armband were placed simultaneously on the dominant arm of the participant. The highest armband (i.e., the one closest to the elbow) was set to its maximum diameter and slid up until the armband’s circumference matched the participant’s forearm circumference. For the first participant, the Myo Armband was the one placed closest to the elbow. This process was replicated for each following participant but alternating the armband closest to the elbow between each subject. The two possible armband configurations alongside examples of the range of armband placements on participants’ forearm are shown in Figure 6. This method of positioning was adopted as to better represent the wide range of positions that nonexperts might use when wearing this type of hardware. The delay between putting the armband on the participant’s forearm and the start of the experiment was approximately three minutes on average." 
+Here is the description from article "A Low-Cost, Wireless, 3-D-Printed Custom Armband for sEMG Hand Gesture Recognition" of actions that 22 subjects did wearing this EMG armband:
+"The proposed dataset is made of eleven hand/wrist gestures, which are presented in Figure 7. All gesture recordings were made with the participants standing up with their forearm parallel to the floor supported by themselves. Starting from the neutral gesture, the participants were instructed, with an auditory cue, to hold the next gesture for 5 s. The cue given to the participants were in the following form: Gesture X, 3, 2, 1, Go. The recording of each movement began just before the movement was started and held by the participant as to capture the ramp-up segment of the muscle activity and always started with the neutral gesture. The recording of the eleven gestures for 5 s each totaled 55 s of data and is referred to as a cycle. A total of four cycles (220 s of data) were recorded with no interruption between cycles. Then, a five min pause was observed, where the participant could relax (without removing the armbands). After the pause, another four cycles of data were recorded. The first four cycles of data are referred to and serves as the training dataset, while the second group of cycles is referred to and serves as the test dataset. Note that the ramp-up period is included in the labeled dataset for each gesture."
+
+I've done several experiments.
+
+1. First experiment (I would call it "Intra-subject training" or "Single subject training", or maybe you have better ideas) was to find out what accuracy the model can give if it is trained on one part of repetition of some subject and tested on another part of repetitions from the same subject.
+As each subject repeated the same sequence of 11 gestures 8 times (repetitions), gestures from one repetition were chosen as a test, 7 repetitions were used  of the model's training. From those 7 repetitions left, one repetition was used for validation during training (for calculation of epoch validation loss and to early stop based on learning curve plateau), while 6 remaining repetitions were used specifically for training.
+I employed Leave-One-Out cross-validation method, first selecting test repetition, then selecting validation repetition, resulting in 8*7=65 repetition folds (combinations) for each subject. 
+So, for each subject and each repetions fold/combination training was done, resulting in 56*22=1232 runs. Each run game me F1-score to represent model accuracy.
+I calculated average F1-score over all runs. It is 0.869, while standart deviation is 0.089.
+
+Additionally, I've calculated mean and std for F1-score across folds/combinations of each subject separatedly to find out how much it can differ depending on the subject. 
+Here are results:
+1 = {'mean': 0.8558843437283846, 'std': 0.042908214326524176}
+2 = {'mean': 0.8949214434369318, 'std': 0.03096793157122255}
+3 = {'mean': 0.7387238845360089, 'std': 0.05131376984188057}
+4 = {'mean': 0.9090049260350561, 'std': 0.02713392770034598}
+5 = {'mean': 0.8829477636262405, 'std': 0.03181884022081231}
+6 = {'mean': 0.8442269326053705, 'std': 0.07321206149203495}
+7 = {'mean': 0.9217171418296132, 'std': 0.026575070592374114}
+8 = {'mean': 0.9060012810905713, 'std': 0.035540432750723064}
+9 = {'mean': 0.88250275318496, 'std': 0.02886001232547039}
+10 = {'mean': 0.7494329964880766, 'std': 0.05964622287244449}
+11 = {'mean': 0.9174580645648024, 'std': 0.05205315186925199}
+12 = {'mean': 0.9101760227894687, 'std': 0.08149674408002573}
+13 = {'mean': 0.9626077349206076, 'std': 0.018682330080358134}
+14 = {'mean': 0.7856706655635259, 'std': 0.22890691222191925}
+15 = {'mean': 0.8598286226286166, 'std': 0.11937780760343172}
+16 = {'mean': 0.8344780256126325, 'std': 0.041007754999699955}
+17 = {'mean': 0.8169696467788761, 'std': 0.04846819880365852}
+18 = {'mean': 0.8994242646133667, 'std': 0.05050214954986502}
+19 = {'mean': 0.8494755067694121, 'std': 0.03624432871606197}
+20 = {'mean': 0.9227796108187619, 'std': 0.01891083801706885}
+21 = {'mean': 0.8495150422245841, 'std': 0.03439917527367085}
+22 = {'mean': 0.9142674796201621, 'std': 0.027456876311724342}
+
+As we can see, average F1-score varies from 0.74 to 0.96. Standart deviations also vary from 0.019 to 0.23, showing how presented model's can depend on the artifacts during EMG signal recording.
+
+2. Second experiment (I would call it "Inter-subject training", or maybe you have better ideas) was to find out how accurate my NN model can classify gestures of those subject that it didn't see during trainig. Probably, we can say - how well model can generalize patterns it learned from one subejects on other new subjects it has never seen, so it can work immediately with out training on this new subject.
+I, again, employed Leave-One-Out cross-validation method. 
+For this, I excluded one subject one by one, while training on remaining 21 subjects. 
+One repetition from 21 subjects was chosen as a test set to report trained model accuracy on the new repetitions but from the same subjects it was trained on.
+7 remained repetitions from 21 subjects were used for trainig (from those 7, 1 repetition was used for validation during training for calculation of epoch validation loss and to early stop based on learning curve plateau). 
+As a result, for each excluded subject, I had 56 folds/combinations of repetitions.
+Repeating the same procedure for all 22 subject, I had 56*22=1232 runs.
+Each run game me F1-score to represent model accuracy. Each F1-score was calculated on that subject that was excluded from training.
+I calculated average F1-score over all runs. It is 0.382, while standart deviation is 0.149.
+Additionally, I've calculated mean and std for F1-score across folds/combinations of each subject separatedly to find out how much it can differ depending on the subject. 
+Here are results:
+ {
+  "0": {
+    "mean": 0.0804332917490965,
+    "std": 0.02205286700634566
+  },
+  "1": {
+    "mean": 0.4668255878365572,
+    "std": 0.02818599804814846
+  },
+  "2": {
+    "mean": 0.34710789945256043,
+    "std": 0.019785437603759694
+  },
+  "3": {
+    "mean": 0.38078511766841433,
+    "std": 0.03265179433371493
+  },
+  "4": {
+    "mean": 0.1610490471934693,
+    "std": 0.016567746748156222
+  },
+  "5": {
+    "mean": 0.3351480667582278,
+    "std": 0.023076720404078044
+  },
+  "6": {
+    "mean": 0.23456673080315626,
+    "std": 0.015321279984755687
+  },
+  "7": {
+    "mean": 0.2768835763477451,
+    "std": 0.021234623289845468
+  },
+  "8": {
+    "mean": 0.41516420071901544,
+    "std": 0.045455334344582154
+  },
+  "9": {
+    "mean": 0.3251693210661143,
+    "std": 0.0218912155968437
+  },
+  "10": {
+    "mean": 0.4240012220227944,
+    "std": 0.03246560653892759
+  },
+  "11": {
+    "mean": 0.43486336510357954,
+    "std": 0.02685588100068378
+  },
+  "12": {
+    "mean": 0.46707695957457046,
+    "std": 0.0910734294648179
+  },
+  "13": {
+    "mean": 0.48628279709324274,
+    "std": 0.053354251853186874
+  },
+  "14": {
+    "mean": 0.2617312531762887,
+    "std": 0.025850124289479467
+  },
+  "15": {
+    "mean": 0.29849186243321885,
+    "std": 0.01824772866520328
+  },
+  "16": {
+    "mean": 0.2873455501780362,
+    "std": 0.018620632289352377
+  },
+  "17": {
+    "mean": 0.4376344940912859,
+    "std": 0.01442925034440856
+  },
+  "18": {
+    "mean": 0.6857885768751807,
+    "std": 0.04036391523919636
+  },
+  "19": {
+    "mean": 0.43729970484769554,
+    "std": 0.03523635366688433
+  },
+  "20": {
+    "mean": 0.6857885768751807,
+    "std": 0.04036391523919636
+  },
+  "21": {
+    "mean": 0.5150363958036455,
+    "std": 0.035092339605479354
+  }
+}
+As we can see, average accuracy per subject varies significantly from 0.08 to 0.686, and standart deviation varying from 0.014 to 0.045.
+
+
+3. Finally, third experiment (I would call it "transfer learning", or maybe you have better ideas) was to find out if we can increase "single subject" model's accuracies from experiment 1, if instead of training model for each subject from scratch, we would use pre-trained model where this subject was excluded (from experiment 2). 
+So, for each subject, first I found the best pre-trained model from experiment 2 (meaning the model with such combination of repetitions that was trained on subjects except this target one, and showed the highest f1-score when was tested on that subject).
+
+Then, for each subject, I took that best pre-trained model, and I tried two ways to fine-tune model to this subject: 
+1. let's call first one "finetune_with_fc_reset" (convolutional layers are not freezed, FC output layer is reset) - finetune with the reset of output fully connected layer (weights were reset using Glorot uniform/xavier, bias was set to zero).
+2. let's call second one "finetune_without_fc_reset" (convolutional layers are not freezed, FC output layer is not reset) - finetune without the reset of output fully connected layer (FC layer wasn't changed, model just continued training using previous values model got during pre-training as the initial point).
+
+Here, as well, for each subject, gestures from one repetition were chosen as a test, 7 repetitions were used  of the model's training. From those 7 repetitions left, one repetition was used for validation during training (for calculation of epoch validation loss and to early stop based on learning curve plateau), while 6 remaining repetitions were used specifically for training.
+I employed Leave-One-Out cross-validation method, first selecting test repetition, then selecting validation repetition, resulting in 8*7=65 repetition folds (combinations) for each subject. 
+So, for each subject and each repetions fold/combination training was done, resulting in 56*22=1232 runs. Each run game me F1-score to represent model accuracy.
+
+Here are results for "finetune_with_fc_reset":
+I calculated average F1-score over all runs. It is 0.907, while standart deviation is 0.074.
+Mean F1-score: 0.907. Std F1-score: 0.074.
+Additionally, I've calculated mean and std for F1-score across folds/combinations of each subject separatedly. Statistics by subject: 
+ {
+  "0": {
+    "mean": 0.8657515936232401,
+    "std": 0.033814292087750386
+  },
+  "1": {
+    "mean": 0.9275506681340971,
+    "std": 0.02434566952355557
+  },
+  "2": {
+    "mean": 0.8047255941811345,
+    "std": 0.038942794057637876
+  },
+  "3": {
+    "mean": 0.9454412573207225,
+    "std": 0.015691755293876158
+  },
+  "4": {
+    "mean": 0.9056050010170552,
+    "std": 0.03229169301983446
+  },
+  "5": {
+    "mean": 0.9013618956447245,
+    "std": 0.04188320575405178
+  },
+  "6": {
+    "mean": 0.9453438280436082,
+    "std": 0.016080840273717516
+  },
+  "7": {
+    "mean": 0.9085115426809838,
+    "std": 0.05761672234275827
+  },
+  "8": {
+    "mean": 0.9165078558055647,
+    "std": 0.03536091450495565
+  },
+  "9": {
+    "mean": 0.8441297873663441,
+    "std": 0.04504579043945188
+  },
+  "10": {
+    "mean": 0.9451216432908428,
+    "std": 0.03236092143100792
+  },
+  "11": {
+    "mean": 0.9443039319615849,
+    "std": 0.062141158540136694
+  },
+  "12": {
+    "mean": 0.9746062292163088,
+    "std": 0.01459804327589245
+  },
+  "13": {
+    "mean": 0.8361313585164514,
+    "std": 0.22043938503711435
+  },
+  "14": {
+    "mean": 0.900418959277715,
+    "std": 0.07690284123811413
+  },
+  "15": {
+    "mean": 0.91499159264645,
+    "std": 0.03854913058599231
+  },
+  "16": {
+    "mean": 0.8648538696034159,
+    "std": 0.0410359614188171
+  },
+  "17": {
+    "mean": 0.9268857684541428,
+    "std": 0.0566492552846744
+  },
+  "18": {
+    "mean": 0.8927094245502997,
+    "std": 0.035672500560070236
+  },
+  "19": {
+    "mean": 0.9432337043949072,
+    "std": 0.013116324636162647
+  },
+  "20": {
+    "mean": 0.8927094245502997,
+    "std": 0.035672500560070236
+  },
+  "21": {
+    "mean": 0.9606343617518004,
+    "std": 0.02083004591600242
+  }
+}
+
+
+Here are results for "finetune_without_fc_reset":
+I calculated average F1-score over all runs. It is 0.896, while standart deviation is 0.071.
+Mean F1-score: 0.896. Std F1-score: 0.071.
+Additionally, I've calculated mean and std for F1-score across folds/combinations of each subject separatedly. Statistics by subject: 
+ {
+  "0": {
+    "mean": 0.846320525398138,
+    "std": 0.03904422097781504
+  },
+  "1": {
+    "mean": 0.9136153245357536,
+    "std": 0.029946889778589354
+  },
+  "2": {
+    "mean": 0.7985108624143127,
+    "std": 0.041064864880313585
+  },
+  "3": {
+    "mean": 0.9243354128383113,
+    "std": 0.028839603332744008
+  },
+  "4": {
+    "mean": 0.8901703126295238,
+    "std": 0.033032050702090504
+  },
+  "5": {
+    "mean": 0.8874857436383687,
+    "std": 0.057889511336989684
+  },
+  "6": {
+    "mean": 0.9195847838948809,
+    "std": 0.01676829113824123
+  },
+  "7": {
+    "mean": 0.9005360021508351,
+    "std": 0.056497855360392715
+  },
+  "8": {
+    "mean": 0.9138483676729239,
+    "std": 0.030894922358091697
+  },
+  "9": {
+    "mean": 0.7905614993562124,
+    "std": 0.08195902605655063
+  },
+  "10": {
+    "mean": 0.9323912223495763,
+    "std": 0.04369461403866574
+  },
+  "11": {
+    "mean": 0.9285885893158785,
+    "std": 0.06981505430054993
+  },
+  "12": {
+    "mean": 0.96731647297908,
+    "std": 0.011433053984596582
+  },
+  "13": {
+    "mean": 0.8554756562077278,
+    "std": 0.15296203626768148
+  },
+  "14": {
+    "mean": 0.892628697155312,
+    "std": 0.07653561346599413
+  },
+  "15": {
+    "mean": 0.9017574491839258,
+    "std": 0.037005284431670935
+  },
+  "16": {
+    "mean": 0.8600477730238817,
+    "std": 0.02673873682425598
+  },
+  "17": {
+    "mean": 0.9293309483425184,
+    "std": 0.049914280767056514
+  },
+  "18": {
+    "mean": 0.8803265516851617,
+    "std": 0.05530143300808331
+  },
+  "19": {
+    "mean": 0.9462029841104026,
+    "std": 0.011504579768524042
+  },
+  "20": {
+    "mean": 0.8803265516851617,
+    "std": 0.05530143300808331
+  },
+  "21": {
+    "mean": 0.9563926681344953,
+    "std": 0.021296804310908534
+  }
+}
+
+To ensure that pre-training statistically significant allows to improve classification accuracy, wilcoxon signed-rank test was used to compare mean F1-scores values for each subject from experiment 1 and experiment 3.
+Another hypothesis that I wanted to check is if we can state that transfer learning can statistically significant help to improve model's stability (meaning to reduce accuracy's standard deviation across different cross-validation combinations).
+
+Here below are logs from the python script that peformed statistical tests comparing "Single subject training" model and fine-tuned model using 'finetune_without_fc_reset' transfer learning strategy.
+```
+Performing hypothesis testing for transfer learning strategy 'finetune_without_fc_reset':
+
+Self-trained model's mean F1-score: 0.869
+Self-trained model's STD F1-score: 0.089
+Fine-tuned model's mean F1-score: 0.896
+Fine-tuned model's STD F1-score: 0.071
+
+Self-trained model's accuracy means: 0.856, 0.895, 0.739, 0.909, 0.883, 0.844, 0.922, 0.906, 0.883, 0.749, 0.917, 0.910, 0.963, 0.786, 0.860, 0.834, 0.817, 0.899, 0.849, 0.923, 0.850, 0.914
+Fine-tuned model's accuracy means: 0.846, 0.914, 0.799, 0.924, 0.890, 0.887, 0.920, 0.901, 0.914, 0.791, 0.932, 0.929, 0.967, 0.855, 0.893, 0.902, 0.860, 0.929, 0.880, 0.946, 0.880, 0.956
+Differences of models means (fine-tuned minus self-trained): -0.010, 0.019, 0.060, 0.015, 0.007, 0.043, -0.002, -0.005, 0.031, 0.041, 0.015, 0.018, 0.005, 0.070, 0.033, 0.067, 0.043, 0.030, 0.031, 0.023, 0.031, 0.042
+Self-trained accuracy STDs: 0.043, 0.031, 0.051, 0.027, 0.032, 0.073, 0.027, 0.036, 0.029, 0.060, 0.052, 0.081, 0.019, 0.229, 0.119, 0.041, 0.048, 0.051, 0.036, 0.019, 0.034, 0.027
+Fine-tuned accuracy STDs: 0.039, 0.030, 0.041, 0.029, 0.033, 0.058, 0.017, 0.056, 0.031, 0.082, 0.044, 0.070, 0.011, 0.153, 0.077, 0.037, 0.027, 0.050, 0.055, 0.012, 0.055, 0.021
+Differences of models STDs (self-trained minus fine-tuned): 0.004, 0.001, 0.010, -0.002, -0.001, 0.015, 0.010, -0.021, -0.002, -0.022, 0.008, 0.012, 0.007, 0.076, 0.043, 0.004, 0.022, 0.001, -0.019, 0.007, -0.021, 0.006
+
+Hypothesis testing:
+
+Hypothesis testing for means:
+Null hypothesis: Fine-tuned model gives the same accuracy as single-subject model
+Alternative hypothesis: Fine-tuned model gives higher accuracy than single-subject model
+Paried T-test:
+p-value: 3.71e-06<0.05. Null-hypothesis rejected. Fine-tuned model F1-score means are statistically greater than subject-specific model F1-score means. Fine-tuned model has higher accuracy.
+Wilcoxon signed-rank test:
+p-value: 7.87e-06<0.05. Null-hypothesis rejected. Fine-tuned model F1-score means are statistically greater than subject-specific model F1-score means. Fine-tuned model has higher accuracy.
+
+Hypothesis testing for STDs:
+Null hypothesis: Fine-tuned model has as much stable stable accuracies as single-subject model
+Alternative hypothesis: Fine-tuned model has more stable accuracies than single-subject model
+Paried T-test:
+p-value: 0.0935>=0.05. Cannot reject null-hypothesis. Fine-tuned model F1-score STDs cannot be proved to be statistically less than subject-specific model F1-score STDs. Fine-tuned model is not proved to be more stable.
+Wilcoxon signed-rank test:
+p-value: 0.0829>=0.05. Cannot reject null-hypothesis. Fine-tuned model F1-score STDs cannot be proved to be statistically less than subject-specific model F1-score STDs. Fine-tuned model is not proved to be more stable.
+```
+
+Here below are logs from the python script that peformed statistical tests comparing "Single subject training" model and fine-tuned model using 'finetune_with_fc_reset' transfer learning strategy.
+```
+Performing hypothesis testing for transfer learning strategy 'finetune_with_fc_reset'
+
+Self-trained model's mean F1-score: 0.869
+Self-trained model's STD F1-score: 0.089
+Fine-tuned model's mean F1-score: 0.907
+Fine-tuned model's STD F1-score: 0.074
+
+Self-trained model's accuracy means: 0.856, 0.895, 0.739, 0.909, 0.883, 0.844, 0.922, 0.906, 0.883, 0.749, 0.917, 0.910, 0.963, 0.786, 0.860, 0.834, 0.817, 0.899, 0.849, 0.923, 0.850, 0.914
+Fine-tuned model's accuracy means: 0.866, 0.928, 0.805, 0.945, 0.906, 0.901, 0.945, 0.909, 0.917, 0.844, 0.945, 0.944, 0.975, 0.836, 0.900, 0.915, 0.865, 0.927, 0.893, 0.943, 0.893, 0.961
+Differences of models means (fine-tuned minus self-trained): 0.010, 0.033, 0.066, 0.036, 0.023, 0.057, 0.024, 0.003, 0.034, 0.095, 0.028, 0.034, 0.012, 0.050, 0.041, 0.081, 0.048, 0.027, 0.043, 0.020, 0.043, 0.046
+Self-trained accuracy STDs: 0.043, 0.031, 0.051, 0.027, 0.032, 0.073, 0.027, 0.036, 0.029, 0.060, 0.052, 0.081, 0.019, 0.229, 0.119, 0.041, 0.048, 0.051, 0.036, 0.019, 0.034, 0.027
+Fine-tuned accuracy STDs: 0.034, 0.024, 0.039, 0.016, 0.032, 0.042, 0.016, 0.058, 0.035, 0.045, 0.032, 0.062, 0.015, 0.220, 0.077, 0.039, 0.041, 0.057, 0.036, 0.013, 0.036, 0.021
+Differences of models STDs (self-trained minus fine-tuned): 0.009, 0.007, 0.012, 0.011, -0.000, 0.031, 0.010, -0.022, -0.007, 0.015, 0.020, 0.019, 0.004, 0.008, 0.042, 0.002, 0.007, -0.006, 0.001, 0.006, -0.001, 0.007
+
+Hypothesis testing:
+
+Hypothesis testing for means:
+Null hypothesis: Fine-tuned model gives the same accuracy as single-subject model
+Alternative hypothesis: Fine-tuned model gives higher accuracy than single-subject model
+Paried T-test:
+p-value: 2.67e-08<0.05. Null-hypothesis rejected. Fine-tuned model F1-score means are statistically greater than subject-specific model F1-score means. Fine-tuned model has higher accuracy.
+Wilcoxon signed-rank test:
+p-value: 2.38e-07<0.05. Null-hypothesis rejected. Fine-tuned model F1-score means are statistically greater than subject-specific model F1-score means. Fine-tuned model has higher accuracy.
+
+Hypothesis testing for STDs:
+Null hypothesis: Fine-tuned model has as much stable stable accuracies as single-subject model
+Alternative hypothesis: Fine-tuned model has more stable accuracies than single-subject model
+Paried T-test:
+p-value: 0.00482<0.05. Null-hypothesis rejected. Fine-tuned model F1-score STDs are statistically less than subject-specific model F1-score STDs. Fine-tuned model is more stable.
+Wilcoxon signed-rank test:
+p-value: 0.00162<0.05. Null-hypothesis rejected. Fine-tuned model F1-score STDs are statistically less than subject-specific model F1-score STDs. Fine-tuned model is more stable.
+```
+
+Here below are logs from the python script that peformed statistical tests comparing two fine-tuned models: 'finetune_without_fc_reset' transfer learning strategy and 'finetune_with_fc_reset' transfer learning strategy.
+```
+Performing hypothesis testing for transfer learning strategies 'finetune_without_fc_reset' and 'finetune_with_fc_reset'.
+
+without_fc_reset model's mean F1-score: 0.896
+without_fc_reset model's STD F1-score: 0.071
+with_fc_reset model's mean F1-score: 0.907
+with_fc_reset model's STD F1-score: 0.074
+
+without_fc_reset model's accuracy means: 0.846, 0.914, 0.799, 0.924, 0.890, 0.887, 0.920, 0.901, 0.914, 0.791, 0.932, 0.929, 0.967, 0.855, 0.893, 0.902, 0.860, 0.929, 0.880, 0.946, 0.880, 0.956
+with_fc_reset model's accuracy means: 0.866, 0.928, 0.805, 0.945, 0.906, 0.901, 0.945, 0.909, 0.917, 0.844, 0.945, 0.944, 0.975, 0.836, 0.900, 0.915, 0.865, 0.927, 0.893, 0.943, 0.893, 0.961
+Differences of models means (with_fc_reset minus without_fc_reset): 0.019, 0.014, 0.006, 0.021, 0.015, 0.014, 0.026, 0.008, 0.003, 0.054, 0.013, 0.016, 0.007, -0.019, 0.008, 0.013, 0.005, -0.002, 0.012, -0.003, 0.012, 0.004
+without_fc_reset model's accuracy STDs: 0.039, 0.030, 0.041, 0.029, 0.033, 0.058, 0.017, 0.056, 0.031, 0.082, 0.044, 0.070, 0.011, 0.153, 0.077, 0.037, 0.027, 0.050, 0.055, 0.012, 0.055, 0.021
+with_fc_reset model's accuracy STDs: 0.034, 0.024, 0.039, 0.016, 0.032, 0.042, 0.016, 0.058, 0.035, 0.045, 0.032, 0.062, 0.015, 0.220, 0.077, 0.039, 0.041, 0.057, 0.036, 0.013, 0.036, 0.021
+Differences of models STDs (without_fc_reset minus with_fc_reset): 0.005, 0.006, 0.002, 0.013, 0.001, 0.016, 0.001, -0.001, -0.004, 0.037, 0.011, 0.008, -0.003, -0.067, -0.000, -0.002, -0.014, -0.007, 0.020, -0.002, 0.020, 0.000
+
+Hypothesis testing:
+
+Hypothesis testing for means:
+Null hypothesis: with_fc_reset model gives the same accuracy as without_fc_reset model
+Alternative hypothesis: with_fc_reset model gives higher accuracy than without_fc_reset model
+Paried T-test:
+p-value: 0.000407<0.05. Null-hypothesis rejected. with_fc_reset model F1-score means are statistically greater than without_fc_reset model F1-score means. with_fc_reset model has higher accuracy.
+Wilcoxon signed-rank test:
+p-value: 0.000346<0.05. Null-hypothesis rejected. with_fc_reset model F1-score means are statistically greater than without_fc_reset model F1-score means. with_fc_reset model has higher accuracy.
+
+Hypothesis testing for STDs:
+Null hypothesis: with_fc_reset model has as much stable stable accuracies as without_fc_reset model
+Alternative hypothesis: with_fc_reset model has more stable accuracies than without_fc_reset model
+Paried T-test:
+p-value: 0.336>=0.05. Cannot reject null-hypothesis. with_fc_reset model F1-score STDs cannot be proved to be statistically less than without_fc_reset model F1-score STDs. with_fc_reset model is not proved to be more stable.
+Wilcoxon signed-rank test:
+p-value: 0.118>=0.05. Cannot reject null-hypothesis. with_fc_reset model F1-score STDs cannot be proved to be statistically less than without_fc_reset model F1-score STDs. with_fc_reset model is not proved to be more stable.
+```
+
+Ще раз проінтерпретуємо отримані результати статистичних тестів: 
+
+1. тренування тільки на одній людині --- пре-тренування, стратегія fine-tuning без ресету FC шару.  
+Для крос-валідацій цих сетапів провів 2 тести для порівняння середніх та стандартних відхилень.
+
+Тест 1 для середніх:
+Нульова гіпотеза: середні не змінились. Альтернативна: стратегія fine-tuning без ресету FC має вищу точність. Результат: нульова гіпотеза відкинута. Точність моделі fine-tuning без ресету FC вище ніж точність моделі без пре-тренування.
+
+Тест 2 для стандартних відхилень:
+Нульова гіпотеза: стандартні відхилення не змінились. Альтернативна: стратегія fine-tuning без ресету FC має менше стандартні відхилення (більш стабільна). Результат: нульова гіпотеза не відкинута. Не можна стверджувати, що стратегія fine-tuning без ресету FC більш стабільна ніж модель без пре-тренування.
+
+2. тренування тільки на одній людині --- пре-тренування, стратегія fine-tuning з ресетом FC шару.
+Для крос-валідацій цих сетапів провів 2 тести для порівняння середніх та стандартних відхилень.
+
+Тест 1 для середніх:
+Нульова гіпотеза: середні не змінились. Альтернативна: стратегія fine-tuning з ресетом FC має вищу точність. Результат: нульова гіпотеза відкинута. Точність моделі fine-tuning з ресетом FC вище ніж точність моделі без пре-тренування.
+
+Тест 2 для стандартних відхилень:
+Нульова гіпотеза: стандартні відхилення не змінились. Альтернативна: стратегія fine-tuning з ресетом FC має менше стандартні відхилення (більш стабільна). Результат:  Стандартне відхилення моделі fine-tuning з ресетом FC менші (більш стабільна) ніж у моделі без пре-тренування.
+
+3. пре-тренування, стратегія fine-tuning без ресету FC шару --- пре-тренування, стратегія fine-tuning з ресетом FC шару.
+Для крос-валідацій цих сетапів провів 2 тести для порівняння середніх та стандартних відхилень.
+
+Тест 1 для середніх:
+Нульова гіпотеза: середні не змінились. Альтернативна: стратегія fine-tuning з ресетом FC має вищу точність ніж стратегія fine-tuning без ресету FC. Результат: нульова гіпотеза відкинута. Точність моделі fine-tuning з ресетом FC вища ніж у моделі fine-tuning без ресета FC.
+
+Тест 2 для стандартних відхилень:
+Нульова гіпотеза: стандартні відхилення не змінились. Альтернативна: стратегія fine-tuning з ресетом FC має менше стандартні відхилення (більш стабільна) ніж модель fine-tuning без ресету FC. Результат: нульова гіпотеза не відкинута. Не можна стверджувати, що стратегія fine-tuning з ресетом FC має менше стандартне відхилення (є більш стабільна) ніж модель fine-tuning без ресету FC.
+
+
+Якщо підсумувати, 
+1. пре-тренування з обома стратегія передачі навчання збільшує точність.
+2. стратегія трансферу навчання з ресетом FC шару має вищу точність ніж стратегія без ресету FC шару.
+3. стратегія трансферу навчання з ресетом FC шару збільшує стабільність в порівнянні з моделлю без попереднього навчання.
+
+
+The author of this dataset, Ulysse Côté-Allard, previously wrote several articles on transfer learning. Probably, make sense to compare my results with his, where feasible and correct to do that.
+These articles are:
+1. "Transfer learning for sEMG hand gestures recognition using convolutional neural networks"
+(2017 year, https://ieeexplore.ieee.org/abstract/document/8122854)
+2. "Deep Learning for Electromyographic Hand Gesture Signal Classification Using Transfer Learning" (2019 year, https://ieeexplore.ieee.org/abstract/document/8630679)
+3. "A Transferable Adaptive Domain Adversarial Neural Network for Virtual Reality Augmented EMG-Based Gesture Recognition" (2021 year, https://ieeexplore.ieee.org/abstract/document/9354785 )

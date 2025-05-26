@@ -62,6 +62,13 @@ def create_tensorboard_writer(folder_path):
         shutil.rmtree(folder_path)
     return SummaryWriter(folder_path)
 
+
+def add_model_graph_to_tensorboard(tensorboard_writer, model, dataloader):
+    data, labels = next(iter(dataloader))
+    data = CNN._try_move_to_accelerator(data)
+    tensorboard_writer.add_graph(model, data)
+    tensorboard_writer.flush()
+
 def create_log_callback(training_result: TrainingExperiment):
     
     tensorboard_writer = create_tensorboard_writer(folder_path=os.path.join("tensorboard", 'libemg_3dc', training_result.id))
@@ -88,7 +95,10 @@ def create_log_callback(training_result: TrainingExperiment):
 
 def generate_cross_validation_folds(all_subject_ids: list[int]) -> Iterator["NeuralNetworkSingleSubjectTrainingExperiment"]:
     for subject_id in all_subject_ids:
-        repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6,7,8])
+        # repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6,7,8])
+        # repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6])
+        # repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4])
+        repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3])
         for repetition_fold in repetition_folds:
             experiment = NeuralNetworkSingleSubjectTrainingExperiment.create(
                 subject_id=subject_id, 
@@ -100,7 +110,7 @@ def generate_cross_validation_folds(all_subject_ids: list[int]) -> Iterator["Neu
 
 seed = 123
 
-num_subjects = 22
+num_subjects = 2
 num_epochs = 50
 batch_size = 64
 
@@ -168,10 +178,13 @@ if __name__ == "__main__":
                 model_checkpoint=model_checkpoint, training_log_callback=log_callback)
 
         # load trained model            
-        model_state, model_config = model_checkpoint.load()
+        model_state, model_config = model_checkpoint.load_best_model_config()
         model.load_state_dict(model_state)
         classifier = EMGClassifier(None)
         classifier.model = model
+
+        tensorboard_writer = create_tensorboard_writer(folder_path=os.path.join("tensorboard2", 'libemg_3dc', 'graph'))
+        add_model_graph_to_tensorboard(tensorboard_writer, model, dataloader_dictionary["training_dataloader"])
 
         # test        
         test_measurements = apply_standardization_params(test_measurements, mean_by_channels=model_config["standardization_mean"], std_by_channels=model_config["standardization_std"])

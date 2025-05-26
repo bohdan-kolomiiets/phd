@@ -91,7 +91,7 @@ def create_log_callback(training_result: TrainingExperiment):
 def generate_cross_validation_folds(all_subject_ids: list[int]) -> Iterator["NeuralNetworkOtherSubjectsTrainingExperiment"]:
     subject_llo = LeaveOneOut()
     for (train_subject_ids, test_subject_ids) in subject_llo.split(all_subject_ids):
-        repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6,7,8])
+        repetition_folds = generate_3_repetitions_folds(all_repetitions=[1,2,3,4,5,6,7,8], test_repetitions=[6])
         for repetition_fold in repetition_folds:
             training_result: NeuralNetworkOtherSubjectsTrainingExperiment = NeuralNetworkOtherSubjectsTrainingExperiment.create(
                 train_subject_ids=list(train_subject_ids), 
@@ -188,7 +188,7 @@ if __name__ == "__main__":
         
         # test on other subjects
         other_subjects_measurements  = odh.isolate_data("subjects", list(experiment.test_subject_ids))
-        other_subjects_measurements = apply_standardization_params(test_measurements, mean_by_channels=model_config["standardization_mean"], std_by_channels=model_config["standardization_std"])
+        other_subjects_measurements = apply_standardization_params(other_subjects_measurements, mean_by_channels=model_config["standardization_mean"], std_by_channels=model_config["standardization_std"])
         other_subjects_test_windows, other_subjects_test_metadata = other_subjects_measurements.parse_windows(200,100)
         other_subjects_predicted_classes, other_subjects_class_probabilities = classifier.run(other_subjects_test_windows)
         print('Test subjects metrics: \n', sklearn.metrics.classification_report(y_true=other_subjects_test_metadata['classes'], y_pred=other_subjects_predicted_classes, output_dict=False))

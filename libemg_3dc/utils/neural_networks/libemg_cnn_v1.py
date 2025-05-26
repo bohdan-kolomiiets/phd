@@ -157,7 +157,8 @@ class CNN_V1(nn.Module):
                 #         global_step=epoch
                 #     )
                 #     self.tensorboard_writer.flush()
-            scheduler.step(epoch_valoss)
+            scheduler.step() # for CosineAnnealingLR
+            # scheduler.step(epoch_valoss) # for ReduceLROnPlateau
             print("Current LR:", scheduler.get_last_lr())
 
             model_checkpoint.save_if_better(epoch_valoss, self)

@@ -1,6 +1,7 @@
 import os
 import sys
 import numpy as np
+import json
 from libemg.datasets import *
 from typing import cast
 
@@ -13,7 +14,7 @@ from libemg_3dc.utils.training_experiments import TrainingExperiments, NeuralNet
 
 if __name__ == "__main__":
 
-    training_results = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(ready).json')
+    training_results = TrainingExperiments.load(path='libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(8 reps).json')
 
     experiments: list[NeuralNetworkSingleSubjectTrainingExperiment] = [
         cast(NeuralNetworkSingleSubjectTrainingExperiment, result) for result in training_results.data if isinstance(result, NeuralNetworkSingleSubjectTrainingExperiment)]
