@@ -46,11 +46,14 @@ As recent deep learning studies suggest, the raw sEMG signal can be ingested dir
 
 Adhering to the already existing best-practices~\cite{Smith2011} and works that use chosen dataset~\cite{Cote2019_3DC,LibEMG2023}, in this study, raw EMG signals are split into 200-sample overlapping windows (with a step size of 100) forming matrixes of size $10 \times 200$ that serves as the input to our CNN. 
 
+\subsection*{CNN Architecture}
 The CNN architecture used in this study is based on implementations from works~\cite{Cote2019_3DC,LibEMG2023}. 
+The final architecture used in this study consists of three sequential 1D convolutional layers followed by a fully connected (FC) output layer. The network was designed to process raw surface EMG input of shape $10 \times 200$ (channels × samples), where each input segment corresponds to a 200-sample window of 10-channel EMG data.
+Each convolutional block includes a \texttt{Conv1d} layer with kernel size 5, followed by batch normalization and a ReLU activation function. The number of filters in successive convolutional layers tapers from 64 to 32 and then 16, forming a pyramid structure that progressively condenses features. The output of the final convolutional layer is flattened and passed to a fully connected layer of size 3008 $\rightarrow$ 11, where 11 corresponds to the number of gesture classes.
+Weights for all layers were initialized using Glorot (Xavier) uniform initialization, and biases were set to zero. The network was optimized using the Adam optimizer (initial learning rate of $10^{-3}$) with a cosine annealing learning rate schedule and trained using cross-entropy loss. Early stopping was applied with a patience of four epochs and tolerance threshold of 0.03. A maximum of 50 epochs was allowed during training, although convergence typically occurred within 15 epochs. To ensure reproducibility, all random seeds were explicitly set for PyTorch, NumPy, and Python’s built-in generators.
+The exact implementation of the CNN used in this study is available in the publicly accessible repository~\cite{Kolomiiets2025}.
 
-The final architecture consists of three convolutional layers, each followed by batch normalization and ReLU activation, with kernel sizes selected to extract both temporal and spatial features. These were followed by a fully connected (FC) output layer of 11 neurons corresponding to gesture classes.
-
-Network weights were initialized using the Glorot uniform strategy and set biases to zero. The network was trained using the Adam optimizer with an initial learning rate of $10^{-3}$ and cosine annealing scheduler. Cross entropy loss was used as the loss function. Early stopping was applied with a patience of four epochs and tolerance threshold of 0.03. A maximum of 50 epochs was allowed during training, although convergence typically occurred within 15 epochs. To ensure reproducibility, all random seeds were explicitly set for PyTorch, NumPy, and Python’s built-in generators.
+\subsection*{Evaluated training approaches}
 
 Three training approaches were evaluated:
 
@@ -60,21 +63,21 @@ Three training approaches were evaluated:
     \item \textbf{Transfer learning}: The best pre-trained cross-subject models were fine-tuned on subject-specific data using two strategies: (1) resetting the final FC layer before fine-tuning and (2) preserving the final FC layer weights. All convolutional layers remained trainable during fine-tuning.
 \end{itemize}
 
-Additionally, to answer the question of whether transfer learning approach with resetting FC layer still provides better accuracy comparing to when model trained on the subject from the scratch, even with less subject-specific data used for fine-tuning, training approaches ``Intra-subject'' and ``Transfer learning'' were run again with fewer repetitions. So, if before from totally 8 repetitions, 6 of them were used specifically for training, this runs contained 4, 2, and 1 repetitions.
+Additionally, to evaluate whether the transfer learning approach with FC layer reset still outperforms training from scratch—especially when less subject-specific data is available—we repeated the Intra-subject'' and Transfer learning’’ experiments using fewer training repetitions. While the original experiments used 6 out of 8 available repetitions for training, the new experiments were conducted using only 4, 2, and 1 repetitions to simulate more limited data scenarios.
 
-To compare the effectiveness of transfer learning approaches, Wilcoxon signed-rank tests were performed on F1-score distributions.
+To compare the effectiveness of transfer learning approaches, Wilcoxon signed-rank tests were performed for all experiments.
 
 \section{Results and Discussion}
 
-To evaluate the performance of different training approaches, F1-score was selected as the primary metric.
+To evaluate the performance of different training approaches, F1-score was selected as the primary accuracy metric.
 
-Figure~\ref{fig:boxplot-approaches} presents box-and-whisker plots summarizing the F1-score distributions for inter-subject generalization, intra-subject training, and two transfer learning strategies: fine-tuning with and without resetting the fully connected (FC) layer. All eight available repetitions were used to train those compared models. Consequently, distributions are based on $1232 (8*7*22)$ cross-validation folds per training strategy across all 22 subjects.
+Figure~\ref{fig:boxplot-approaches} presents box-and-whisker plots summarizing the F1-score distributions for inter-subject generalization, intra-subject training, and two transfer learning strategies: fine-tuning with and without resetting the fully connected (FC) layer. All eight available repetitions were used for training in those experiments. Consequently, distributions are based on $1232 (8*7*22)$ cross-validation folds per training approach across all 22 subjects.
 
-The baseline inter-subject approach yielded a mean F1-score of 0.382 ($\sigma = 0.149$), confirming that generalization across subjects is significantly limited due to variability in electrode placement and anatomical differences. In contrast, intra-subject training—where the model is trained and tested on data from the same participant—achieved a dramatically higher mean F1-score of 0.869 ($\sigma = 0.089$).
+The inter-subject approach yielded a mean F1-score of 0.382 ($\sigma = 0.149$), confirming that generalization across subjects is significantly limited due to variability in electrode placement and anatomical differences. In contrast, intra-subject training—where the model is trained and tested on data from the same participant—achieved a dramatically higher mean F1-score of 0.869 ($\sigma = 0.089$).
 
-Fine-tuning pre-trained models using the ``without FC reset'' aproach further improved performance to 0.896 ($\sigma = 0.071$). However, the best result was obtained using the ``with FC reset'' approach, achieving a mean of 0.907 ($\sigma = 0.074$), suggesting that resetting the classifier head enables better adaptation to new subjects. Both transfer learning strategies outperformed intra-subject training, affirming the benefit of leveraging pre-trained representations.
+Fine-tuning pre-trained models using the ``without FC reset'' transfer learning strategy further improved performance to 0.896 ($\sigma = 0.071$). However, the best result was obtained using the ``with FC reset'' transfer learning strategy, achieving a mean of 0.907 ($\sigma = 0.074$), suggesting that resetting the CNN's head enables better adaptation to new subjects. Both transfer learning strategies outperformed intra-subject training approach, affirming the benefit of using pre-trained models.
 
-To assess whether transfer learning allowes to reduce the amount of subject-specific data, we performed additional experiments with decreasing numbers of training repetitions. As shown in Figure~\ref{fig:boxplot-reps}, the transfer learning approach with FC layer reset consistently achieves higher F1-scores across all scenarios. While reducing the number of training repetitions to three results in a noticeable decline in accuracy, using four repetitions yields only a modest decrease. This effectively halves the required subject effort compared to using all eight repetitions, without substantially compromising classification accuracy.
+To assess whether transfer learning allowes to reduce the amount of subject-specific data, we additionally performed experiments with decreased numbers of training repetitions (6, 4, 3). As shown in Figure~\ref{fig:boxplot-reps}, the transfer learning approach with FC layer reset consistently achieves higher F1-scores across all scenarios. While reducing the number of training repetitions to three results in a noticeable decline in accuracy, using four repetitions yields only a modest decrease. This effectively halves the required subject effort compared to using all eight repetitions, without substantially compromising classification accuracy.
 
 \end{multicols}
 
@@ -114,6 +117,8 @@ To validate whether transfer learning with FC reset remains statistically superi
 - \textit{3 repetitions:} F1-score improved from 0.463 to 0.724 ($p = 2 \times 10^{-5}$); STD statistically significantly reduced from 0.127 to 0.121 ($p = 0.0473$).
 
 These results demonstrate that the benefit of transfer learning with FC reset remains statistically significant across differnet amount of available training data. This confirms its robustness and practicality for reducing subject burden during calibration.
+
+The training results, as well as python scripts used to analyse those results are available in the publicly accessible repository~\cite{Kolomiiets2025}.
 
 \subsection*{Summary of Findings}
 
@@ -222,5 +227,8 @@ Rehman, M.Z.U., Waris, A., Gilani, S.O., Jochumsen, M., Niazi, I.K., Jamil, M., 
 
 \bibitem{Oskoei2007}
 Oskoei, M.A. and Hu, H., 2007. Myoelectric control systems—A survey. \textit{Biomedical Signal Processing and Control}, 2(4), pp.275–294. Available at: \url{https://doi.org/10.1016/j.bspc.2007.07.009} [Accessed 25 May 2025].
+
+\bibitem{Kolomiiets2025}
+Kolomiiets, B. Yu., 2025. *Code used for experiments presented in this artcile* [online]. GitHub. Available at: \url{https://github.com/bohdan-kolomiiets/phd-article-1} [Accessed 27 May 2025].
 
 \end{thebibliography}

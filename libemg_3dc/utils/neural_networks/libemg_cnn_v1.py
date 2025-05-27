@@ -140,23 +140,6 @@ class CNN_V1(nn.Module):
 
                 training_log_callback(epoch, epoch_trloss, epoch_tracc, epoch_valoss, epoch_vaacc)
 
-                # printd(f"{epoch+1}: trloss:{epoch_trloss:.2f}  tracc:{epoch_tracc:.2f}  valoss:{epoch_valoss:.2f}  vaacc:{epoch_vaacc:.2f}")
-                # if self.tensorboard_writer is not None:
-                #     self.tensorboard_writer.add_scalars(main_tag='Training loss', tag_scalar_dict= { 'training_loss': epoch_trloss }, global_step=epoch)
-                #     self.tensorboard_writer.add_scalars(main_tag='Training accuracy', tag_scalar_dict= { 'training_accuracy': epoch_tracc }, global_step=epoch)
-                #     self.tensorboard_writer.add_scalars(main_tag='Validation loss', tag_scalar_dict= { 'validation_loss': epoch_valoss }, global_step=epoch)
-                #     self.tensorboard_writer.add_scalars(main_tag='Validation accuracy', tag_scalar_dict= { 'validation_accuracy': epoch_vaacc }, global_step=epoch)
-                #     self.tensorboard_writer.add_scalars(
-                #         main_tag='Learning curve',
-                #         tag_scalar_dict= { 
-                #             'training_loss': epoch_trloss, 
-                #             'training_accuracy': epoch_tracc, 
-                #             'validation_loss': epoch_valoss, 
-                #             'validation_accuracy': epoch_vaacc 
-                #         },
-                #         global_step=epoch
-                #     )
-                #     self.tensorboard_writer.flush()
             scheduler.step() # for CosineAnnealingLR
             # scheduler.step(epoch_valoss) # for ReduceLROnPlateau
             print("Current LR:", scheduler.get_last_lr())
