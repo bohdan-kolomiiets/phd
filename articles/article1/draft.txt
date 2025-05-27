@@ -611,6 +611,119 @@ p-value: 0.118>=0.05. Cannot reject null-hypothesis. with_fc_reset model F1-scor
 3. стратегія трансферу навчання з ресетом FC шару збільшує стабільність в порівнянні з моделлю без попереднього навчання.
 
 
+Previously, we've already ensured that when using 8 repetions, transfer learning with FC reset gives statistically higher accuracies, but to ensure that transfer learning with FC reset approach improvement relatively to intra-subject training approch is statistically significant, Wilcoxon signed rank tests were executed for each number of repetions (6, 4, 3).
+Here are logs from the python script for the wilcoxon test:
+
+For 6 repetitions:
+```
+Loaded 660 experiments from 'libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(6 reps).json'
+Loaded 660 experiments from 'libemg_3dc/prove_pretraining_helps/fine_tuned/cnn_v1_results(finetune_with_fc_reset 6 reps).json'
+Self-trained model's mean F1-score: 0.822
+Self-trained model's STD F1-score: 0.103
+Fine-tuned model's mean F1-score: 0.883
+Fine-tuned model's STD F1-score: 0.084
+
+Self-trained model's accuracy means: 0.800, 0.850, 0.671, 0.864, 0.852, 0.823, 0.892, 0.874, 0.855, 0.667, 0.885, 0.904, 0.937, 0.683, 0.822, 0.784, 0.762, 0.851, 0.782, 0.891, 0.782, 0.866
+Fine-tuned model's accuracy means: 0.825, 0.902, 0.785, 0.929, 0.899, 0.880, 0.938, 0.899, 0.901, 0.775, 0.930, 0.948, 0.961, 0.776, 0.879, 0.879, 0.826, 0.890, 0.867, 0.936, 0.867, 0.923
+Differences of models means (fine-tuned minus self-trained): 0.025, 0.052, 0.115, 0.065, 0.047, 0.058, 0.046, 0.026, 0.045, 0.108, 0.045, 0.044, 0.024, 0.094, 0.057, 0.096, 0.064, 0.039, 0.085, 0.045, 0.085, 0.058
+Self-trained accuracy STDs: 0.037, 0.046, 0.044, 0.047, 0.033, 0.054, 0.026, 0.049, 0.033, 0.051, 0.055, 0.052, 0.018, 0.245, 0.120, 0.049, 0.055, 0.053, 0.047, 0.025, 0.047, 0.035
+Fine-tuned accuracy STDs: 0.027, 0.032, 0.043, 0.028, 0.033, 0.042, 0.017, 0.057, 0.043, 0.068, 0.031, 0.058, 0.014, 0.220, 0.073, 0.061, 0.055, 0.059, 0.040, 0.014, 0.040, 0.032
+Differences of models STDs (self-trained minus fine-tuned): 0.009, 0.014, 0.001, 0.019, -0.000, 0.012, 0.009, -0.009, -0.010, -0.017, 0.024, -0.006, 0.004, 0.025, 0.047, -0.012, 0.000, -0.007, 0.007, 0.011, 0.007, 0.003
+
+Hypothesis testing:
+
+Hypothesis testing for means:
+Null hypothesis: Fine-tuned model gives the same accuracy as single-subject model.
+Alternative hypothesis: Fine-tuned model gives higher accuracy than single-subject model.
+Paried T-test:
+p-value: 2.64e-10<0.05. Null-hypothesis rejected. Fine-tuned model F1-score means are statistically greater than subject-specific model F1-score means. Fine-tuned model has higher accuracy.
+Wilcoxon signed-rank test:
+p-value: 2e-05<0.05. Null-hypothesis rejected. Fine-tuned model F1-score means are statistically greater than subject-specific model F1-score means. Fine-tuned model has higher accuracy.
+
+Hypothesis testing for STDs:
+Null hypothesis: Fine-tuned model has as much stable stable accuracies as single-subject model.
+Alternative hypothesis: Fine-tuned model has more stable accuracies than single-subject model.
+Paried T-test:
+p-value: 0.0323<0.05. Null-hypothesis rejected. Fine-tuned model F1-score STDs are statistically less than subject-specific model F1-score STDs. Fine-tuned model is more stable.
+Wilcoxon signed-rank test:
+p-value: 0.0333<0.05. Null-hypothesis rejected. Fine-tuned model F1-score STDs are statistically less than subject-specific model F1-score STDs. Fine-tuned model is more stable.
+The end.
+```
+
+For 4 repetitions:
+```
+Loaded 264 experiments from 'libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(4 reps).json'
+Loaded 264 experiments from 'libemg_3dc/prove_pretraining_helps/fine_tuned/cnn_v1_results(finetune_with_fc_reset 4 reps).json'
+Self-trained model's mean F1-score: 0.711
+Self-trained model's STD F1-score: 0.107
+Fine-tuned model's mean F1-score: 0.841
+Fine-tuned model's STD F1-score: 0.084
+
+Self-trained model's accuracy means: 0.688, 0.809, 0.495, 0.700, 0.713, 0.704, 0.733, 0.772, 0.752, 0.551, 0.776, 0.816, 0.846, 0.748, 0.673, 0.608, 0.655, 0.785, 0.643, 0.796, 0.643, 0.741
+Fine-tuned model's accuracy means: 0.699, 0.868, 0.699, 0.895, 0.861, 0.852, 0.890, 0.893, 0.860, 0.678, 0.895, 0.914, 0.919, 0.857, 0.774, 0.825, 0.806, 0.863, 0.834, 0.897, 0.834, 0.893
+Differences of models means (fine-tuned minus self-trained): 0.010, 0.059, 0.204, 0.195, 0.148, 0.149, 0.158, 0.121, 0.107, 0.127, 0.119, 0.098, 0.073, 0.109, 0.101, 0.217, 0.152, 0.079, 0.191, 0.102, 0.191, 0.152
+Self-trained accuracy STDs: 0.031, 0.048, 0.073, 0.051, 0.036, 0.073, 0.089, 0.049, 0.050, 0.060, 0.066, 0.049, 0.060, 0.129, 0.081, 0.084, 0.048, 0.049, 0.061, 0.029, 0.061, 0.063
+Fine-tuned accuracy STDs: 0.047, 0.031, 0.037, 0.026, 0.023, 0.057, 0.028, 0.043, 0.057, 0.063, 0.050, 0.069, 0.045, 0.092, 0.063, 0.049, 0.055, 0.064, 0.030, 0.020, 0.030, 0.032
+Differences of models STDs (self-trained minus fine-tuned): -0.015, 0.016, 0.036, 0.025, 0.013, 0.016, 0.061, 0.007, -0.007, -0.003, 0.016, -0.020, 0.015, 0.038, 0.018, 0.036, -0.007, -0.015, 0.031, 0.009, 0.031, 0.030
+
+Hypothesis testing:
+
+Hypothesis testing for means:
+Null hypothesis: Fine-tuned model gives the same accuracy as single-subject model.
+Alternative hypothesis: Fine-tuned model gives higher accuracy than single-subject model.
+Paried T-test:
+p-value: 4.83e-11<0.05. Null-hypothesis rejected. Fine-tuned model F1-score means are statistically greater than subject-specific model F1-score means. Fine-tuned model has higher accuracy.
+Wilcoxon signed-rank test:
+p-value: 2e-05<0.05. Null-hypothesis rejected. Fine-tuned model F1-score means are statistically greater than subject-specific model F1-score means. Fine-tuned model has higher accuracy.
+
+Hypothesis testing for STDs:
+Null hypothesis: Fine-tuned model has as much stable stable accuracies as single-subject model.
+Alternative hypothesis: Fine-tuned model has more stable accuracies than single-subject model.
+Paried T-test:
+p-value: 0.00125<0.05. Null-hypothesis rejected. Fine-tuned model F1-score STDs are statistically less than subject-specific model F1-score STDs. Fine-tuned model is more stable.
+Wilcoxon signed-rank test:
+p-value: 0.00183<0.05. Null-hypothesis rejected. Fine-tuned model F1-score STDs are statistically less than subject-specific model F1-score STDs. Fine-tuned model is more stable.
+The end.
+```
+
+For 3 repetitions:
+```
+Loaded 132 experiments from 'libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(3 reps).json'
+Loaded 132 experiments from 'libemg_3dc/prove_pretraining_helps/fine_tuned/cnn_v1_results(finetune_with_fc_reset 3 reps).json'
+Self-trained model's mean F1-score: 0.463
+Self-trained model's STD F1-score: 0.127
+Fine-tuned model's mean F1-score: 0.724
+Fine-tuned model's STD F1-score: 0.121
+
+Self-trained model's accuracy means: 0.456, 0.597, 0.348, 0.438, 0.421, 0.544, 0.297, 0.424, 0.545, 0.382, 0.605, 0.416, 0.689, 0.401, 0.370, 0.399, 0.301, 0.565, 0.466, 0.579, 0.466, 0.482
+Fine-tuned model's accuracy means: 0.468, 0.829, 0.599, 0.788, 0.706, 0.788, 0.782, 0.785, 0.791, 0.524, 0.807, 0.613, 0.829, 0.728, 0.608, 0.785, 0.600, 0.748, 0.741, 0.834, 0.741, 0.831
+Differences of models means (fine-tuned minus self-trained): 0.012, 0.233, 0.251, 0.350, 0.285, 0.245, 0.484, 0.361, 0.247, 0.142, 0.202, 0.198, 0.140, 0.326, 0.238, 0.387, 0.299, 0.183, 0.274, 0.255, 0.274, 0.349
+Self-trained accuracy STDs: 0.040, 0.068, 0.041, 0.034, 0.055, 0.056, 0.035, 0.100, 0.132, 0.062, 0.042, 0.166, 0.066, 0.088, 0.125, 0.070, 0.064, 0.051, 0.033, 0.006, 0.033, 0.120
+Fine-tuned accuracy STDs: 0.049, 0.035, 0.042, 0.033, 0.008, 0.036, 0.028, 0.032, 0.044, 0.052, 0.070, 0.140, 0.036, 0.124, 0.086, 0.030, 0.091, 0.071, 0.039, 0.031, 0.039, 0.054
+Differences of models STDs (self-trained minus fine-tuned): -0.009, 0.033, -0.001, 0.001, 0.047, 0.020, 0.008, 0.069, 0.088, 0.010, -0.028, 0.026, 0.030, -0.036, 0.039, 0.040, -0.027, -0.021, -0.006, -0.025, -0.006, 0.066
+
+Hypothesis testing:
+
+Hypothesis testing for means:
+Null hypothesis: Fine-tuned model gives the same accuracy as single-subject model.
+Alternative hypothesis: Fine-tuned model gives higher accuracy than single-subject model.
+Paried T-test:
+p-value: 2.03e-11<0.05. Null-hypothesis rejected. Fine-tuned model F1-score means are statistically greater than subject-specific model F1-score means. Fine-tuned model has higher accuracy.
+Wilcoxon signed-rank test:
+p-value: 2e-05<0.05. Null-hypothesis rejected. Fine-tuned model F1-score means are statistically greater than subject-specific model F1-score means. Fine-tuned model has higher accuracy.
+
+Hypothesis testing for STDs:
+Null hypothesis: Fine-tuned model has as much stable stable accuracies as single-subject model.
+Alternative hypothesis: Fine-tuned model has more stable accuracies than single-subject model.
+Paried T-test:
+p-value: 0.0313<0.05. Null-hypothesis rejected. Fine-tuned model F1-score STDs are statistically less than subject-specific model F1-score STDs. Fine-tuned model is more stable.
+Wilcoxon signed-rank test:
+p-value: 0.0473<0.05. Null-hypothesis rejected. Fine-tuned model F1-score STDs are statistically less than subject-specific model F1-score STDs. Fine-tuned model is more stable.
+The end.
+```
+
+
+
 The author of this dataset, Ulysse Côté-Allard, previously wrote several articles on transfer learning. Probably, make sense to compare my results with his, where feasible and correct to do that.
 These articles are:
 1. "Transfer learning for sEMG hand gestures recognition using convolutional neural networks"

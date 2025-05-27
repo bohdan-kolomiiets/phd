@@ -8,33 +8,43 @@
 \setcounter{figure}{0}
 \setcounter{table}{0}
 \setcounter{footnote}{0}
-\renewcommand{\ehkol}{Автори українською/англійською мовою}
-\renewcommand{\ohkol}{Назва українською/англійською мовою}
+\renewcommand{\ehkol}{Kolomiiets B. Yu., Karplyuk Ye. S.}
+\renewcommand{\ohkol}{Improving sEMG Gesture Classification with Transfer Learning: Accuracy, Stability, and Low-Data Adaptation}
 \Vykh{radap20NN:FirstPage}{radap20NN:LastPage}
 \begin{multicols}{2}
 [
 \UDC{}
-\renewcommand{\ehkol}{Автори англійською/українською мовою}
-\renewcommand{\ohkol}{Назва англійською/українською мовою }
+\renewcommand{\ehkol}{Kolomiiets B. Yu., Karplyuk Ye. S.}
+\renewcommand{\ohkol}{Improving sEMG Gesture Classification with Transfer Learning: Accuracy, Stability, and Low-Data Adaptation}
 \Title{Title/Назва}\label{radap20NN:FirstPage}
-\Authors{Автор1, Автор2, ...}
-\aff{Назва установи}
-\Address{}{ел.пошта}
-\AbsKeywords{Текст анотації}
-{Keywords/Ключові слова}{ }
+\Authors{Kolomiiets B. Yu., Karplyuk Ye. S.}
+\aff{National Technical University of Ukraine "Igor Sikorsky Kyiv Polytechnic Institute", Kyiv, Ukraine}
+\Address{}{kolomiiets.bohdan.yuriyovych@gmail.com}
+\AbsKeywords{
+Surface electromyography (sEMG) enables intuitive and non-invasive human–machine interfacing, yet its practical deployment remains limited by inter-subject variability and the substantial effort required for subject-specific model calibration. In this work, we evaluate the effectiveness of transfer learning to address these challenges in the context of deep learning-based gesture classification, using a dataset that includes eleven gestures repeated eight times by 22 subjects. We systematically compare three training paradigms: (i) intra-subject training, (ii) inter-subject generalization, and (iii) transfer learning with and without resetting the classifier’s fully connected (FC) output layer. A rigorous leave-one-out cross-validation scheme was applied across all subjects and repetitions to ensure robust evaluation.
+Our results show that both transfer learning strategies outperform baseline models in terms of classification accuracy, with the best performance achieved when fine-tuning with a reset FC layer (F1-score = 0.907, $\sigma = 0.074$). Statistical analysis using Wilcoxon signed-rank tests confirms that these improvements are significant, even when only a limited number of subject-specific repetitions are used for fine-tuning. Notably, the transfer learning approach being trained on four repetitions maintains almost the same performance compared to training from scratch on eight repetitions, halving training repetitions while preserving accuracy. This represents a substantial reduction in calibration effort without sacrificing performance.
+These findings support the use of pre-trained models for rapid subject adaptation in sEMG-controlled systems and validate fine-tuning with FC reset as an effective strategy for improving both performance and model stability. The methodology and results presented in this work contribute to the development of practical, adaptive, and low-effort EMG-based interfaces for assistive and rehabilitative applications.
+}
+{Keywords}{
+surface electromyography (sEMG), gesture recognition, transfer learning, deep learning, convolutional neural networks (CNN), inter-subject variability, model generalization, fine-tuning strategies, subject adaptation, myoelectric control, EMG-based interface, cross-validation, biomedical signal processing, rehabilitation technologies, low-effort calibration
+ }
 {\href{http://radap.kpi.ua/radiotechnique/article/view/20NN}{10.20535/RADAP.2025.\#\#.\pageref{radap20NN:FirstPage}-\pageref{radap20NN:LastPage}}}
 ]
 
 \input{radap20NN}  
 
-\TitleSecond{Назва українською/англійською мовою}
-\Auth{Автори українською/англійською мовою }
-\AbsK{Анотація українською/англійською мовою }
-{Ключові слова/Keywords}
-{українською/англійською мовою }
+\TitleSecond{Improving sEMG Gesture Classification with Transfer Learning: Accuracy, Stability, and Low-Data Adaptation}
+\Auth{Kolomiiets B. Yu., Karplyuk Ye. S.}
+\AbsK{
+Surface electromyography (sEMG) enables intuitive and non-invasive human–machine interfacing, yet its practical deployment remains limited by inter-subject variability and the substantial effort required for subject-specific model calibration. In this work, we evaluate the effectiveness of transfer learning to address these challenges in the context of deep learning-based gesture classification, using a dataset that includes eleven gestures repeated eight times by 22 subjects. We systematically compare three training paradigms: (i) intra-subject training, (ii) inter-subject generalization, and (iii) transfer learning with and without resetting the classifier’s fully connected (FC) output layer. A rigorous leave-one-out cross-validation scheme was applied across all subjects and repetitions to ensure robust evaluation.
+Our results show that both transfer learning strategies outperform baseline models in terms of classification accuracy, with the best performance achieved when fine-tuning with a reset FC layer (F1-score = 0.907, $\sigma = 0.074$). Statistical analysis using Wilcoxon signed-rank tests confirms that these improvements are significant, even when only a limited number of subject-specific repetitions are used for fine-tuning. Notably, the transfer learning approach being trained on four repetitions maintains almost the same performance compared to training from scratch on eight repetitions, halving training repetitions while preserving accuracy. This represents a substantial reduction in calibration effort without sacrificing performance.
+These findings support the use of pre-trained models for rapid subject adaptation in sEMG-controlled systems and validate fine-tuning with FC reset as an effective strategy for improving both performance and model stability. The methodology and results presented in this work contribute to the development of practical, adaptive, and low-effort EMG-based interfaces for assistive and rehabilitative applications.
+}
+{
+surface electromyography (sEMG), gesture recognition, transfer learning, deep learning, convolutional neural networks (CNN), inter-subject variability, model generalization, fine-tuning strategies, subject adaptation, myoelectric control, EMG-based interface, cross-validation, biomedical signal processing, rehabilitation technologies, low-effort calibration
+}
 
 \label{radap20NN:LastPage}
 \end{multicols}
 \newpage
 %%%%%%%%%%%%%  END of GENERATED TEXT  %%%%%%%%%%%%\n
-

@@ -66,7 +66,9 @@ To compare the effectiveness of transfer learning approaches, Wilcoxon signed-ra
 
 \section{Results and Discussion}
 
-To evaluate the performance of different training approaches, F1-score was selected as the primary metric. Figure~\ref{fig:boxplot-approaches} presents box-and-whisker plots summarizing the F1-score distributions for inter-subject generalization, intra-subject training, and two transfer learning strategies: fine-tuning with and without resetting the fully connected (FC) layer. The distributions are based on 1232 cross-validation folds per training strategy across all 22 subjects.
+To evaluate the performance of different training approaches, F1-score was selected as the primary metric.
+
+Figure~\ref{fig:boxplot-approaches} presents box-and-whisker plots summarizing the F1-score distributions for inter-subject generalization, intra-subject training, and two transfer learning strategies: fine-tuning with and without resetting the fully connected (FC) layer. All eight available repetitions were used to train those compared models. Consequently, distributions are based on $1232 (8*7*22)$ cross-validation folds per training strategy across all 22 subjects.
 
 \end{multicols}
 \begin{Figure}\centering%{l}{\linewidth}
@@ -92,19 +94,25 @@ To assess whether transfer learning allowes to reduce the amount of subject-spec
 
 \subsection*{Statistical Significance of Transfer Learning Improvements}
 
-To formally test the impact of transfer learning approaches, we performed Wilcoxon signed-rank tests on the subject-wise mean and standard deviation (STD) of F1-scores.
-Significance level was chosen to be $\alpha = 0.05$.
+To formally test the impact of transfer learning approaches, we performed Wilcoxon signed-rank tests on the subject-wise mean and standard deviation (STD) of F1-scores. The significance level was set to $\alpha = 0.05$.
 
-\textbf{Comparison: Intra-subject vs Transfer Learning (without FC reset).}  
-The mean F1-score increased from 0.869 to 0.896. Wilcoxon test ($p = 7.87 \times 10^{-6}$) confirms a statistically significant improvement. However, for model stability, the tests yielded $p = 0.0829$, indicating the reduction in STD (from 0.089 to 0.071) is not statistically significant.
+\textbf{Comparison: Intra-subject (8 repetitions) vs Transfer Learning (without FC reset, 8 repetitions).}  
+The mean F1-score increased from $0.869$ to $0.896$. Wilcoxon test ($p = 7.87 \times 10^{-6}$) confirmed a statistically significant improvement. However, the decrease in STD from 0.089 to 0.071 was not statistically significant ($p = 0.0829$).
 
-\textbf{Comparison: Intra-subject vs Transfer Learning (with FC reset).}  
-The mean F1-score improved to 0.907, with Wilcoxon test ($p = 2.38 \times 10^{-7}$) confirming significance. The reduction in STD from 0.089 to 0.074 was also significant ($p = 0.00162$), confirming that this aproach provides both better accuracy and improved model stability.
+\textbf{Comparison: Intra-subject (8 repetitions) vs Transfer Learning (with FC reset, 8 repetitions).}  
+The mean F1-score increased to $0.907$. Wilcoxon test ($p = 2.38 \times 10^{-7}$) confirmed this improvement to be statistically significant. Additionally, the reduction in STD from 0.089 to 0.074 was also statistically significant ($p = 0.00162$), indicating enhanced model stability.
 
-\textbf{Comparison: Transfer Learning without vs with FC reset.}  
-When comparing the two transfer learning approaches, the ``with FC reset'' approach outperformed the ``without reset'' variant with mean F1-scores of 0.907 vs 0.896. Wilcoxon test ($p = 0.000346$) again indicate statistical significance. However, the difference in STD was not statistically significant ($p = 0.118$).
+\textbf{Comparison: Transfer Learning without FC (8 repetitions) vs with FC reset (8 repetitions).}  
+The ``with FC reset'' strategy outperformed ``without reset'' in mean F1-score (0.907 vs 0.896), with Wilcoxon test yielding $p = 0.000346$, indicating statistical significance. The change in STD was not statistically significant ($p = 0.118$).
 
-% TODO: add statistical tests for each number of repetitions.
+\textbf{Effect of Repetition Count on Statistical Significance.}  
+To validate whether transfer learning with FC reset remains statistically superior to training from the scratch (intra-subject approach) when fewer training repetitions are used, Wilcoxon tests were also conducted for 6, 4, and 3 repetitions:
+
+- \textit{6 repetitions:} F1-score improved from 0.822 to 0.883 ($p = 2 \times 10^{-5}$); STD statistically significantly reduced from 0.103 to 0.084 ($p = 0.0333$).
+- \textit{4 repetitions:} F1-score improved from 0.711 to 0.841 ($p = 2 \times 10^{-5}$); STD statistically significantly reduced from 0.107 to 0.084 ($p = 0.00183$).
+- \textit{3 repetitions:} F1-score improved from 0.463 to 0.724 ($p = 2 \times 10^{-5}$); STD statistically significantly reduced from 0.127 to 0.121 ($p = 0.0473$).
+
+These results demonstrate that the benefit of transfer learning with FC reset remains statistically significant across differnet amount of available training data. This confirms its robustness and practicality for reducing subject burden during calibration.
 
 \subsection*{Summary of Findings}
 
@@ -118,138 +126,41 @@ In summary:
 
 These findings validate the efficacy of transfer learning for sEMG gesture recognition and highlight the practical advantage of using pre-trained models for quick subject adaptation, especially in real-time or low-data scenarios.
 
-\subsection{Оформлення таблиць}
+\subsection*{Limitations, Comparison to Related Work, and Future Directions}
 
-Таблиця в одній колонці
-\begin{Table}
-	\captionof{table}{Average F1-scores and its standard deviations for each training approach}
-	\begin{tabularx}{\linewidth}{|l|c|c|c|c|X|}
-		\hline   &   &  &  &  &  \\
-		\rule{0pt}{10pt} Training approach  & F-score  &	 &	  & &	 \\ 
-		\hline 
-		\rule{0pt}{10pt} Inter-subject & $0.382 \pm 0.149$ &	 &	  &	  &	 \\ 
-		\hline 
-		\rule{0pt}{10pt} Intra-subject & $0.869 \pm 0.089$ &   &	  &	  &  \\ 
-		\hline 
-		\rule{0pt}{10pt} Transfer learning &   &   &	  &	  & \\ 
-		\hline 
-		\rule{0pt}{10pt}   &	  &  &   &	  &  \\ 
-		\hline 
-\end{tabularx} \label{radap1725tab1}
-\end{Table}
+While the experimental results strongly support the effectiveness of transfer learning—particularly the fine-tuning with FC reset strategy—several limitations should be acknowledged.
 
-\section{Приклади оформлення окремих елементів статті}
+First, the convolutional neural network (CNN) architecture employed in this study was intentionally kept relatively shallow to ensure comparability with baseline works and maintain computational simplicity~\cite{Cote2019_3DC,LibEMG2023}. However, this architecture may not fully exploit the temporal and spatial dependencies in sEMG signals. More advanced architectures, such as gated temporal convolutional networks~\cite{Xie2024} or hybrid CNN–LSTM models~\cite{Faust2018}, could potentially further improve classification performance and stability.
 
-Формули з скрізним номером: 
-\begin{equation}\label{radap1725eq1}
-p_n(z(\xi)) = \frac{1}{\sqrt{2\pi} v} \exp  \left(-\frac{1}{2}\Bigg(\frac{z(\xi)}{v} \Bigg)^2 \right)
-\end{equation}
+Second, although the 3DC dataset is a well-established benchmark, it was originally designed to simulate realistic variability in electrode placement. While this strengthens the case for evaluating inter-subject generalization, it also introduces significant variability in the training data. As a result, absolute accuracy values reported in this study may be lower than those observed in more controlled datasets.
 
-\begin{equation}\label{radap1725eq2}
-p_{cn}(z(\xi)) = \frac{1}{\sqrt{2\pi} v} \exp  \left(-\frac{1}{2}\Bigg(\frac{z(\xi)}{v}-q \Bigg)^2 \right) 
-\end{equation}
+Third, although our experiments employed leave-one-out cross-validation per subject and repetition, they were conducted in an offline setting. Future evaluations in real-time or online scenarios are necessary to validate the practicality of deploying these models in wearable systems or interactive applications~\cite{Shen2020}.
 
-Декілька рівнянь з позначкою одним номером:
-\begin{equation*}
-\begin{aligned}
-{K_1}\left( {x,y} \right) = {C_1}\left( {x,y} \right) + {n_1}\left( {x,y} \right),\\	
-{K_2}\left( {x,y} \right) = {C_2}\left( {x,y} \right) + {n_2}\left( {x,y} \right),
-\end{aligned}
-\end{equation*}
+In comparison to related studies, our results are consistent with prior works by Côté-Allard et al.~\cite{Cote2019}, who demonstrated the benefits of transfer learning on sEMG-based gesture recognition. However, those studies typically used a single transfer learning strategy. Our work expands upon this by systematically comparing fine-tuning with and without FC reset and providing robust statistical analysis. Furthermore, while Lehmler et al.~\cite{Lehmler2021} and Ameri et al.~\cite{Ameri2020} investigated domain adaptation and transfer across electrode shifts, few works have directly quantified how much subject-specific data can be saved—a contribution this paper explicitly addresses.
 
-%\begin{equation}
-%\begin{aligned}
-%
-%\end{aligned}
-%\end{equation}
+Future research should focus on several directions:
+\begin{itemize}
+    \item Exploring deeper or hybrid models that can model temporal dynamics explicitly (e.g., attention-based or transformer architectures).
+    \item Incorporating domain adaptation techniques to further mitigate distributional shifts between training and target subjects.
+    \item Investigating few-shot or semi-supervised learning approaches to reduce calibration requirements even further.
+    \item Evaluating latency and resource usage for deployment on low-power microcontrollers to ensure feasibility in wearable devices.
+\end{itemize}
 
-Довгі формули слід записувати у декілька стрічок як це приведено нижче:
-\begin{multline}\label{radap1345eq2}
-U_{i-1}= \sum\limits_{j=0}^{i-1}\left| r_j - \sum\limits_{h=0}^{g} x_{(j-h)} \nu_h \right|^2 =\\= \sum\limits_{j=0}^{i-2}\left| r_j - \sum\limits_{h=0}^{g} x_{(j-h)} \nu_h \right|^2 +w_{i-1} =\\= U_{i-2} + w_{i-1} 
-\end{multline}
+In addition, public benchmarking on larger and more diverse datasets would help generalize these findings to broader use cases. The proposed evaluation pipeline based on \texttt{LibEMG} and 3DC can serve as a reproducible and extensible framework for future comparisons.
 
-Дуже довгі формули, що важко розмістити в одній колонці можна розмістити на всю сторінку як це приведено нижче:
+\section*{Conclusion}
 
-\end{multicols} % Закриваємо розмітку на дві колонки
-\begin{multline}
-\upsilon({{s}_{x}},{{s}_{y}},{{s}_{z}})\!=\!\frac{\left[{{p}_{\bot }}{{J}_{1}}\left(\sqrt{s_{x}^{2}+s_{y}^{2}}{{r}_{0}}\right){{J}_{0}}({{p}_{\bot }})-\sqrt{s_{x}^{2}+s_{y}^{2}}{{r}_{0}}{{J}_{0}}\left(\sqrt{s_{x}^{2}+s_{y}^{2}}{{r}_{0}}\right){{J}_{1}}({{p}_{\bot }})\right]}{(s_{x}^{2}+s_{y}^{2})r_{0}^{2}-p_{\bot }^{2}}\frac{\omega _{z}^{*}({{s}_{z}})}{\sqrt{s_{x}^{2}+s_{y}^{2}}};  
-\end{multline}
-\begin{multicols}{2} % Відкриваємо нову розмітку на дві колонки 
+This study investigated the effectiveness of transfer learning for surface electromyography (sEMG) gesture classification using convolutional neural networks. By comparing intra-subject training, inter-subject generalization, and two transfer learning strategies (with and without resetting the FC layer), we demonstrated that transfer learning significantly enhances classification performance and model stability.
 
-Формули без номеру: 
-$$
-M\left\{ {\ln \left( {\left. \Lambda  \right|\xi } \right)} \right\} = \frac{{{{\left( {{\rm M}\left\{ {z\left( \xi  \right)} \right\}} \right)}^2}}}{{2{v^2}}}.
-$$	
- 
-   
-  
+Our experiments showed that fine-tuning pre-trained models—especially when resetting the FC layer—not only improves F1-scores but also reduces standard deviation across cross-validation folds, indicating more consistent performance. Notably, this benefit remains statistically significant even when using a reduced number of repetitions for subject-specific fine-tuning, suggesting that transfer learning can substantially reduce the effort required for user calibration.
 
-\section{ }
+In addition, the statistical analysis using Wilcoxon signed-rank tests confirmed the superiority of the fine-tuned models under various data constraints. These findings emphasize the practicality of transfer learning in real-world applications where data availability is limited.
 
-\subsection{Рисунки}
- 
-\begin{Figure}\centering%{l}{\linewidth}
-\includegraphics[width=\linewidth]{fig1}
-\captionof{figure}{Графік залежності помилки визначення висот об'єктів від значення базису стереознімання}\label{radap1627fig1}
-\end{Figure}
- 
-\begin{figure*}\centering
-	%Figure 5 	
-	\includegraphics[width=0.4\linewidth]{fig2a}
-	~~~~~
-	\includegraphics[width=0.4\linewidth]{fig2b}
-	\begin{tabular}{p{0.49\linewidth}p{0.49\linewidth}}
-		\centering (a) & \centering (b)  
-	\end{tabular}	
-	\captionof{figure}{Підпис до рисунку (a) $\Delta\delta_{DD}(r_n)$ (b)  $\theta = 1 $}\label{fig2}%
-\end{figure*}
+Nevertheless, the study has several limitations. The CNN architecture used is relatively simple and may not capture more complex spatiotemporal dependencies in the EMG signal. Also, evaluations were conducted in an offline setting using a single dataset (3DC), which, while realistic in variability, may not generalize to all EMG acquisition systems or environments.
 
-\subsection{Оформлення таблиць}
+Future work should explore deeper and hybrid models, real-time implementations, and domain adaptation techniques to further reduce calibration overhead. Expanding evaluation to diverse datasets and hardware platforms will be critical to validating these results at scale.
 
-Таблиця в одній колонці
-\begin{Table}
-	\captionof{table}{Назва таблиці}
-	\begin{tabularx}{\linewidth}{|l|c|c|c|c|X|}
-		\hline   &   &  &  &  &  \\
-		\rule{0pt}{10pt}   &   &	 &	  & &	 \\ 
-		\hline 
-		\rule{0pt}{10pt}  &  &   &	  &	  &  \\ 
-		\hline 
-		\rule{0pt}{10pt}  &   &	 &	  &	  &	 \\ 
-		\hline 
-		\rule{0pt}{10pt}  &   &   &	  &	  & \\ 
-		\hline 
-		\rule{0pt}{10pt}   &	  &  &   &	  &  \\ 
-		\hline 
-\end{tabularx} \label{radap1725tab1}
-\end{Table}
-
-Таблиця на дві колонки
-\end{multicols}
-\begin{Table}
-\captionof{table}{Назва таблиці 2}
-\begin{tabularx}{\linewidth}{|l|c|c|c|c|X|}
-	\hline   &   &  &  &  &  \\
-	\rule{0pt}{10pt}   &   &	 &	  & &	 \\ 
-	\hline 
-	\rule{0pt}{10pt}  &  &   &	  &	  &  \\ 
-	\hline 
-	\rule{0pt}{10pt}  &   &	 &	  &	  &	 \\ 
-	\hline 
-	\rule{0pt}{10pt}  &   &   &	  &	  & \\ 
-	\hline 
-	\rule{0pt}{10pt}   &	  &  &   &	  &  \\ 
-	\hline 
-\end{tabularx} \label{radap1725tab2}
-\end{Table}
-\begin{multicols}{2}
-
-
-
-
-\pdfbookmark[1]{Висновки}{conc}
-\section*{Висновки}
-
+In summary, transfer learning—particularly fine-tuning with FC reset—emerges as a highly effective strategy for subject adaptation in sEMG-based gesture recognition, offering both performance improvements and practical utility for deployment in wearable systems.
 
 \pdfbookmark[1]{References}{translit}
 \renewcommand{\refname}{References}

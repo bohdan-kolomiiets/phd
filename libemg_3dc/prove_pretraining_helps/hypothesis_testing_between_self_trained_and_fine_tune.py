@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # print()
 
     single_subject_path = 'libemg_3dc/prove_pretraining_helps/single_subject/cnn_v1_results(3 reps).json'
-    fine_tuned_path = f'libemg_3dc/prove_pretraining_helps/fine_tuned/cnn_v1_results(3 reps).json'
+    fine_tuned_path = f'libemg_3dc/prove_pretraining_helps/fine_tuned/cnn_v1_results(finetune_with_fc_reset 3 reps).json'
    
     single_subject_experiments = TrainingExperiments.load(path=single_subject_path)
     print(f"Loaded {len(single_subject_experiments.data)} experiments from '{single_subject_path}'")
