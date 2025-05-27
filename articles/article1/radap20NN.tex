@@ -70,14 +70,6 @@ To evaluate the performance of different training approaches, F1-score was selec
 
 Figure~\ref{fig:boxplot-approaches} presents box-and-whisker plots summarizing the F1-score distributions for inter-subject generalization, intra-subject training, and two transfer learning strategies: fine-tuning with and without resetting the fully connected (FC) layer. All eight available repetitions were used to train those compared models. Consequently, distributions are based on $1232 (8*7*22)$ cross-validation folds per training strategy across all 22 subjects.
 
-\end{multicols}
-\begin{Figure}\centering%{l}{\linewidth}
-\includegraphics[width=\linewidth]{accuracy_by_approach_8_reps}
-\captionof{figure}{Box-and-whisker plots of F1-score distributions across training approaches: inter-subject generalization, intra-subject training, and two variants of transfer learning (with and without fully connected (FC) layer reset). Boxes represent interquartile range (IQR), lines show medians, and dashed lines indicate means. Outliers are shown as individual points.}
-\label{fig:boxplot-approaches}
-\end{Figure}
-\begin{multicols}{2}
-
 The baseline inter-subject approach yielded a mean F1-score of 0.382 ($\sigma = 0.149$), confirming that generalization across subjects is significantly limited due to variability in electrode placement and anatomical differences. In contrast, intra-subject training—where the model is trained and tested on data from the same participant—achieved a dramatically higher mean F1-score of 0.869 ($\sigma = 0.089$).
 
 Fine-tuning pre-trained models using the ``without FC reset'' aproach further improved performance to 0.896 ($\sigma = 0.071$). However, the best result was obtained using the ``with FC reset'' approach, achieving a mean of 0.907 ($\sigma = 0.074$), suggesting that resetting the classifier head enables better adaptation to new subjects. Both transfer learning strategies outperformed intra-subject training, affirming the benefit of leveraging pre-trained representations.
@@ -85,11 +77,20 @@ Fine-tuning pre-trained models using the ``without FC reset'' aproach further im
 To assess whether transfer learning allowes to reduce the amount of subject-specific data, we performed additional experiments with decreasing numbers of training repetitions. As shown in Figure~\ref{fig:boxplot-reps}, the transfer learning approach with FC layer reset consistently achieves higher F1-scores across all scenarios. While reducing the number of training repetitions to three results in a noticeable decline in accuracy, using four repetitions yields only a modest decrease. This effectively halves the required subject effort compared to using all eight repetitions, without substantially compromising classification accuracy.
 
 \end{multicols}
-\begin{Figure}\centering%{l}{\linewidth}
+
+\begin{center}
+\centering%{l}{\linewidth}
+\includegraphics[width=\linewidth]{accuracy_by_approach_8_reps}
+\captionof{figure}{Box-and-whisker plots of F1-score distributions across training approaches: inter-subject generalization, intra-subject training, and two variants of transfer learning (with and without fully connected (FC) layer reset). Boxes represent interquartile range (IQR), lines show medians, and dashed lines indicate means. Outliers are shown as individual points.}
+\label{fig:boxplot-approaches}
+\end{center}
+
+\begin{center}
+\centering%{l}{\linewidth}
 \includegraphics[width=\linewidth]{intra_subject_vs_fine_tuned_by_reps}
 \captionof{figure}{Box-and-whisker plots showing the distribution of F1-scores across different numbers of training repetitions (6, 4, 2, 1) for intra-subject training and transfer learning (with fully connected layer reset). Note that repetitions numbers here represent a total number of repetitions consisting of eleven gestures a subject would need to execute. Each box shows the interquartile range and median; dashed lines denote the mean. Outliers are plotted as individual points.}
 \label{fig:boxplot-reps}
-\end{Figure}
+\end{center}
 \begin{multicols}{2}
 
 \subsection*{Statistical Significance of Transfer Learning Improvements}
