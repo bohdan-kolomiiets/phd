@@ -1,6 +1,7 @@
 # Data
 **/data
 **/_*
+!articles/**/*
 **/.*
 **/checkpoints
 **/tensorboard

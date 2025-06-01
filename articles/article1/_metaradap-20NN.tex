@@ -1,0 +1,64 @@
+\documentclass[a4paper, 10pt,twoside]{article} %,draft 
+			\usepackage{cmap}					% пошук в PDF 
+			\usepackage[left=2.0cm, right=2.0cm, top=2.5cm, bottom=2.5cm]{geometry}   %розміри сторінки ,twoside 
+			\usepackage[utf8x]{inputenc} 		% кодування 
+			\usepackage{radap}					% стильовий файл журналу 
+			\usepackage{float}          		% defines \newfloat 
+			\usepackage{url} 
+			\usepackage[ 
+							pdftex, 
+							colorlinks,% 
+							linkcolor=blue,citecolor=red,urlcolor=blue, 
+							%linkcolor=black,citecolor=black,urlcolor=black, 
+							hyperindex,% 
+							plainpages=false,% 
+							unicode=true, 
+							bookmarksopen,% 
+					%bookmarksnumbered,% 
+					pdftitle={Назва статті англійською мовою}, 
+					pdfauthor={Автор1, Автор2, ...}, 
+					pdfsubject={Visnyk NTUU KPI. Series Radiotekhnika Radioaparatobuduvannia}, 
+					pdfkeywords={Ключові слова англійською мовою} 
+				]{hyperref} 
+\usepackage[all]{hypcap} 
+		\usepackage{latexsym,amsmath,amsfonts,amssymb,amsthm,mathrsfs} 
+		\usepackage{cite,hhline} 
+		\usepackage{lscape} 
+
+		\usepackage[english]{babel}	%переноси 
+		\usepackage[T2A]{fontenc} 
+		\usepackage{textcomp, enumerate,color}	% Додаткові символи 
+
+		\usepackage{indentfirst}		% Отступ первого абзаца 
+
+		\setlength\fboxsep{3pt} 		% Отступ рамки \fbox{} от рисунка 
+		\setlength\fboxrule{1pt} 		% Толщина линий рамки \fbox{} 
+		\usepackage{wrapfig} 			% Обтекание рисунков и таблиц текстом 
+		\usepackage{graphics,epsfig} 	% Рисунки 
+		\usepackage{epstopdf}			% Рисунки формату eps 
+
+		\usepackage{multicol,caption}	% набір тесту у колонки, аголовки 
+		\usepackage{tabularx}\captionsetup[table]{ 
+			labelsep = newline, 
+			%textfont = sc, 
+			%name = TABLE, 
+			justification=justified, 
+			singlelinecheck=false,%%%%%%% a single line is centered by default 
+			labelsep=space,%%%%%%colon 
+			skip = \medskipamount 
+		} 
+
+				
+		\captionsetup[figure]{ 
+					labelsep = newline, 
+			%textfont = sc, 
+			%name = Fig., 
+			justification=centerlast, 
+			singlelinecheck=false,%%%%%%% a single line is centered by default 
+			labelsep=period,%%%%%%colon 
+			skip = \medskipamount 
+		}
+					\begin{document}
+		\input{metadata-20NN.tex}
+
+\end{document}
