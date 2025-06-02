@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.5.21)  3 JUN 2025 00:21
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.5.21)  3 JUN 2025 00:34
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1248,13 +1248,15 @@ Underfull \hbox (badness 5519) in paragraph at lines 11--12
 LaTeX Font Info:    Trying to load font information for T2A+cmtt on input line 41.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/cyrillic/t2acmtt.fd
 File: t2acmtt.fd 2001/08/11 v1.0a Computer Modern Cyrillic font definitions
-) [2]
-<cnn-architecture-diagram.png, id=113, 1194.4625pt x 333.245pt>
+)
+<cnn-architecture-diagram.png, id=91, 1194.4625pt x 333.245pt>
 File: cnn-architecture-diagram.png Graphic file (type png)
 <use cnn-architecture-diagram.png>
-Package pdftex.def Info: cnn-architecture-diagram.png  used on input line 59.
+Package pdftex.def Info: cnn-architecture-diagram.png  used on input line 52.
 (pdftex.def)             Requested size: 483.69687pt x 134.94823pt.
- [3{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc} <./cnn-architecture-diagram.png>]
+
+
+[2] [3{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc} <./cnn-architecture-diagram.png>]
 <accuracy_by_approach_8_reps.png, id=129, 1011.78pt x 578.16pt>
 File: accuracy_by_approach_8_reps.png Graphic file (type png)
 <use accuracy_by_approach_8_reps.png>
@@ -1301,6 +1303,76 @@ Underfull \hbox (badness 5203) in paragraph at lines 273--274
  []
 
 )
+Underfull \hbox (badness 10000) in paragraph at lines 36--36
+\T2A/cmr/bx/n/12 Покращення класифiкацiЁ ЕМГ-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+[]\T2A/cmr/m/n/9 Поверхнева електромiографiя (sEMG) це
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+\T2A/cmr/m/n/9 значною варiативнiстю мiж користувачами та
+ []
+
+
+Underfull \hbox (badness 6047) in paragraph at lines 46--46
+\T2A/cmr/m/n/9 користувача. У цьому дослiдженнi розгляда№ться,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+\T2A/cmr/m/n/9 повнозв'язного (FC) вихiдного шару згортковоЁ
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+\T2A/cmr/m/n/9 за допомогою стратегiЁ перехресноЁ перевiрки з
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+\T2A/cmr/m/n/9 пiдтвердили, що цi покращення № статистично
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+\T2A/cmr/m/n/9 Отриманi результати свiдчать, що донавчання
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+\T2A/cmr/m/n/9 попередньо натренованих моделей може сутт№во
+ []
+
+
+Overfull \hbox (4.27939pt too wide) in paragraph at lines 46--46
+[] \T2A/cmr/m/it/9 поверхнева електромiографiя (sEMG), розпiзнавання
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+\T2A/cmr/m/it/9 рухiв, трансферне навчання, глибоке навчання,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+\T2A/cmr/m/it/9 варiативнiсть, узагальнення моделей, стратегiЁ
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+\T2A/cmr/m/it/9 керування, ЕМГ-iнтерфейс, перехресна перевiрка
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--46
+\T2A/cmr/m/it/9 (cross-validation), обробка бiомедичних сигналiв,
+ []
+
+
 
 [8]) (./_metaradap-20NN.aux)
  ***********
@@ -1317,9 +1389,9 @@ Here is how much of TeX's memory you used:
  37915 multiletter control sequences out of 15000+600000
  583592 words of font info for 100 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,16n,79p,1086b,771s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,16n,79p,2050b,771s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx2074.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0700.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0900.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti0700.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti0900.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sftt0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
-Output written on _metaradap-20NN.pdf (8 pages, 560786 bytes).
+Output written on _metaradap-20NN.pdf (8 pages, 585145 bytes).
 PDF statistics:
  303 PDF objects out of 1000 (max. 8388607)
  253 compressed objects within 3 object streams

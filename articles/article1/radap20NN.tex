@@ -46,13 +46,6 @@ Based on these findings, we adopted a raw-input strategy in this study. This app
 
 Adhering to the already existing best-practices~\cite{Smith2011} and works that use chosen dataset~\cite{Cote2019_3DC,LibEMG2023}, in this study, raw EMG signals are split into 200-sample overlapping windows (with a step size of 100) forming matrixes of size $10 \times 200$ that serves as the input to our CNN. 
 
-\subsection*{CNN Architecture}
-
-The CNN architecture used in this study is based on implementations from works~\cite{Cote2019_3DC,LibEMG2023} and presented in the Fig.~\ref{image:cnn-architecture}. 
-The network was designed to process raw surface EMG input of shape $10 \times 200$ (channels × samples).
-All layer weights were initialized using the Glorot (Xavier) uniform method, with biases set to zero. The network was trained using the Adam optimizer, starting with a learning rate of $10^{-3}$, and a cosine annealing schedule was applied for learning rate adjustment. Cross-entropy was used as the loss function during training. Early stopping was applied with a patience of four epochs and tolerance threshold of 0.03. A maximum of 50 epochs was allowed during training, although convergence typically occurred within 15 epochs. To ensure reproducibility, all random seeds were explicitly set for PyTorch, NumPy, and Python’s built-in generators.
-The exact implementation of the CNN used in this study is available in the publicly accessible repository~\cite{Kolomiiets2025}.
-
 \end{multicols}
 \begin{figure*}[t]
     \centering
@@ -61,6 +54,13 @@ The exact implementation of the CNN used in this study is available in the publi
     \label{image:cnn-architecture}
 \end{figure*}
 \begin{multicols}{2}
+
+\subsection*{CNN Architecture}
+
+The CNN architecture used in this study is based on implementations from works~\cite{Cote2019_3DC,LibEMG2023} and presented in the Fig.~\ref{image:cnn-architecture}. 
+The network was designed to process raw surface EMG input of shape $10 \times 200$ (channels × samples).
+All layer weights were initialized using the Glorot (Xavier) uniform method, with biases set to zero. The network was trained using the Adam optimizer, starting with a learning rate of $10^{-3}$, and a cosine annealing schedule was applied for learning rate adjustment. Cross-entropy was used as the loss function during training. Early stopping was applied with a patience of four epochs and tolerance threshold of 0.03. A maximum of 50 epochs was allowed during training, although convergence typically occurred within 15 epochs. To ensure reproducibility, all random seeds were explicitly set for PyTorch, NumPy, and Python’s built-in generators.
+The exact implementation of the CNN used in this study is available in the publicly accessible repository~\cite{Kolomiiets2025}.
 
 \subsection*{Evaluated training approaches}
 

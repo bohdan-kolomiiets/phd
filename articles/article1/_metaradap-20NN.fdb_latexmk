@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1748899310.33935 "/Users/bohdan/Documents/phd/phd-repository/articles/article1/_metaradap-20NN.tex" "_metaradap-20NN.pdf" "_metaradap-20NN" 1748899311.33372 0
+["pdflatex"] 1748900057.84919 "/Users/bohdan/Documents/phd/phd-repository/articles/article1/_metaradap-20NN.tex" "_metaradap-20NN.pdf" "_metaradap-20NN" 1748900058.92653 0
   "/Users/bohdan/Documents/phd/phd-repository/articles/article1/_metaradap-20NN.tex" 1748858715.24282 2646 658891871a9143c6860cc3e4c87b7240 ""
   "/Users/bohdan/Library/texlive/2025/texmf-var/fonts/tfm/lh/lh-t2a/labx0800.tfm" 1747849749.81248 3312 b8ab24c48b05dd87fb4dc8a3f4f2271a ""
   "/Users/bohdan/Library/texlive/2025/texmf-var/fonts/tfm/lh/lh-t2a/labx1000.tfm" 1747849831.7756 3300 6abb8e321227ead2a8e929e5abc72bd3 ""
@@ -185,15 +185,15 @@
   "/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1747848090 5467155 19efa205003f9ecad95fbbaa6ff24da1 ""
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1747848062 3345733 4957c4abb644d25e0823b1c236dcf08b ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
-  "_metaradap-20NN.aux" 1748899311.15725 6261 3fe36a014c0dc6ac976e79437d00132d "pdflatex"
-  "_metaradap-20NN.out" 1748899311.15853 676 303ee2c88d3e980ead4a3bfa91b1a30f "pdflatex"
+  "_metaradap-20NN.aux" 1748900058.74111 6261 e044e9c0565bda0b7b08249c4d954b11 "pdflatex"
+  "_metaradap-20NN.out" 1748900058.7424 676 303ee2c88d3e980ead4a3bfa91b1a30f "pdflatex"
   "_metaradap-20NN.tex" 1748858715.24282 2646 658891871a9143c6860cc3e4c87b7240 ""
   "accuracy_by_approach_8_reps.png" 1748300206.30305 65071 3e0b1938477ffa65a48452c10b177879 ""
   "cnn-architecture-diagram.png" 1748888842.41428 70454 944aaf95672eaf355c59033f72799180 ""
   "intra_subject_vs_fine_tuned_by_reps.png" 1748301308.97175 63391 4b04204fa4bcd931cf70751f354ef75a ""
-  "metadata-20NN.tex" 1748897731.0846 5752 43d573b6e73610a91fc7cf17331b4a6a ""
+  "metadata-20NN.tex" 1748900057.71875 7904 9f711ed7b891598bf35b4ac10584b92e ""
   "radap.sty" 1748108123.71 3906 9a804984a7c9e26847852ad94413d37a ""
-  "radap20NN.tex" 1748899310.14812 32461 9cc8f335e5255c34bb5a5d48a47054b0 ""
+  "radap20NN.tex" 1748899509.62207 32461 85f1e8a320c6a1731d50515bab470c98 ""
   (generated)
   "_metaradap-20NN.aux"
   "_metaradap-20NN.log"
