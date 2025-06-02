@@ -37,22 +37,24 @@
 		\usepackage{graphics,epsfig} 	% Рисунки 
 		\usepackage{epstopdf}			% Рисунки формату eps 
 
-		\usepackage{multicol,caption}	% набір тесту у колонки, аголовки 
+		\usepackage{multicol, multirow,caption}	% набір тесту у колонки, аголовки 
 		\usepackage{tabularx}\captionsetup[table]{ 
 			labelsep = newline, 
 			%textfont = sc, 
-			%name = TABLE, 
+			name = Tabl., 
 			justification=justified, 
 			singlelinecheck=false,%%%%%%% a single line is centered by default 
 			labelsep=space,%%%%%%colon 
 			skip = \medskipamount 
 		} 
-
+		\renewcommand{\arraystretch}{1.5} % Висота рядка в таблицях
+		\usepackage{makecell}
+		\usepackage{booktabs}
 				
 		\captionsetup[figure]{ 
 					labelsep = newline, 
 			%textfont = sc, 
-			%name = Fig., 
+			name = Fig., 
 			justification=centerlast, 
 			singlelinecheck=false,%%%%%%% a single line is centered by default 
 			labelsep=period,%%%%%%colon 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.5.21)  27 MAY 2025 16:47
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.5.21)  3 JUN 2025 00:21
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1064,22 +1064,28 @@ Package: multicol 2024/09/14 v1.9i multicolumn formatting (FMi)
 \mult@nat@firstbox=\box101
 \colbreak@box=\box102
 \mc@col@check@num=\count310
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/multirow/multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip60
+\multirow@cntb=\count311
+\multirow@dima=\skip61
+\bigstrutjot=\dimen179
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/caption/caption.sty
 Package: caption 2023/08/05 v3.6o Customizing captions (AR)
  (/usr/local/texlive/2025/texmf-dist/tex/latex/caption/caption3.sty
 Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
-\caption@tempdima=\dimen179
-\captionmargin=\dimen180
-\caption@leftmargin=\dimen181
-\caption@rightmargin=\dimen182
-\caption@width=\dimen183
-\caption@indent=\dimen184
-\caption@parindent=\dimen185
-\caption@hangindent=\dimen186
+\caption@tempdima=\dimen180
+\captionmargin=\dimen181
+\caption@leftmargin=\dimen182
+\caption@rightmargin=\dimen183
+\caption@width=\dimen184
+\caption@indent=\dimen185
+\caption@parindent=\dimen186
+\caption@hangindent=\dimen187
 Package caption Info: Standard document class detected.
 )
-\c@caption@flags=\count311
-\c@continuedfloat=\count312
+\c@caption@flags=\count312
+\c@continuedfloat=\count313
 Package caption Info: float package is loaded.
 Package caption Info: hyperref package is loaded.
 Package caption Info: hypcap package is loaded.
@@ -1088,48 +1094,72 @@ Package caption Info: wrapfig package is loaded.
 Package: tabularx 2023/12/11 v2.12a `tabularx' package (DPC)
  (/usr/local/texlive/2025/texmf-dist/tex/latex/tools/array.sty
 Package: array 2024/10/17 v2.6g Tabular extension package (FMi)
-\col@sep=\dimen187
+\col@sep=\dimen188
 \ar@mcellbox=\box103
-\extrarowheight=\dimen188
+\extrarowheight=\dimen189
 \NC@list=\toks36
-\extratabsurround=\skip60
-\backup@length=\skip61
+\extratabsurround=\skip62
+\backup@length=\skip63
 \ar@cellbox=\box104
 )
-\TX@col@width=\dimen189
-\TX@old@table=\dimen190
-\TX@old@col=\dimen191
-\TX@target=\dimen192
-\TX@delta=\dimen193
-\TX@cols=\count313
+\TX@col@width=\dimen190
+\TX@old@table=\dimen191
+\TX@old@col=\dimen192
+\TX@target=\dimen193
+\TX@delta=\dimen194
+\TX@cols=\count314
 \TX@ftn=\toks37
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/makecell/makecell.sty
+Package: makecell 2009/08/03 V0.1e Managing of Tab Column Heads and Cells
+\rotheadsize=\dimen195
+\c@nlinenum=\count315
+\TeXr@lab=\toks38
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/booktabs/booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen196
+\lightrulewidth=\dimen197
+\cmidrulewidth=\dimen198
+\belowrulesep=\dimen199
+\belowbottomsep=\dimen256
+\aboverulesep=\dimen257
+\abovetopsep=\dimen258
+\cmidrulesep=\dimen259
+\cmidrulekern=\dimen260
+\defaultaddspace=\dimen261
+\@cmidla=\count316
+\@cmidlb=\count317
+\@aboverulesep=\dimen262
+\@belowrulesep=\dimen263
+\@thisruleclass=\count318
+\@lastruleclass=\count319
+\@thisrulewidth=\dimen264
 ) (/usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count314
+\l__color_backend_stack_int=\count320
 \l__pdf_internal_box=\box105
 ) (./_metaradap-20NN.aux)
 \openout1 = `_metaradap-20NN.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
-LaTeX Font Info:    Checking defaults for T2A/cmr/m/n on input line 61.
-LaTeX Font Info:    ... okay on input line 61.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
+LaTeX Font Info:    Checking defaults for T2A/cmr/m/n on input line 63.
+LaTeX Font Info:    ... okay on input line 63.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -1165,24 +1195,24 @@ LaTeX Font Info:    ... okay on input line 61.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring ON on input line 61.
+Package hyperref Info: Link coloring ON on input line 63.
 (./_metaradap-20NN.out) (./_metaradap-20NN.out)
 \@outlinefile=\write3
 \openout3 = `_metaradap-20NN.out'.
 
  (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count315
-\scratchdimen=\dimen194
+\scratchcounter=\count321
+\scratchdimen=\dimen265
 \scratchbox=\box106
-\nofMPsegments=\count316
-\nofMParguments=\count317
-\everyMPshowfont=\toks38
-\MPscratchCnt=\count318
-\MPscratchDim=\dimen195
-\MPnumerator=\count319
-\makeMPintoPDFobject=\count320
-\everyMPtoPDFconversion=\toks39
+\nofMPsegments=\count322
+\nofMParguments=\count323
+\everyMPshowfont=\toks39
+\MPscratchCnt=\count324
+\MPscratchDim=\dimen266
+\MPnumerator=\count325
+\makeMPintoPDFobject=\count326
+\everyMPtoPDFconversion=\toks40
 )
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
@@ -1215,86 +1245,64 @@ Underfull \hbox (badness 5519) in paragraph at lines 11--12
 [1
 
 {/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t2a.enc}]
-LaTeX Font Info:    Trying to load font information for T2A+cmtt on input line 43.
+LaTeX Font Info:    Trying to load font information for T2A+cmtt on input line 41.
  (/usr/local/texlive/2025/texmf-dist/tex/latex/cyrillic/t2acmtt.fd
 File: t2acmtt.fd 2001/08/11 v1.0a Computer Modern Cyrillic font definitions
-) [2{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
-<accuracy_by_approach_8_reps.png, id=114, 1011.78pt x 578.16pt>
+) [2]
+<cnn-architecture-diagram.png, id=113, 1194.4625pt x 333.245pt>
+File: cnn-architecture-diagram.png Graphic file (type png)
+<use cnn-architecture-diagram.png>
+Package pdftex.def Info: cnn-architecture-diagram.png  used on input line 59.
+(pdftex.def)             Requested size: 483.69687pt x 134.94823pt.
+ [3{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc} <./cnn-architecture-diagram.png>]
+<accuracy_by_approach_8_reps.png, id=129, 1011.78pt x 578.16pt>
 File: accuracy_by_approach_8_reps.png Graphic file (type png)
 <use accuracy_by_approach_8_reps.png>
-Package pdftex.def Info: accuracy_by_approach_8_reps.png  used on input line 90.
+Package pdftex.def Info: accuracy_by_approach_8_reps.png  used on input line 100.
+(pdftex.def)             Requested size: 483.69687pt x 276.40207pt.
+<intra_subject_vs_fine_tuned_by_reps.png, id=130, 1011.78pt x 578.16pt>
+File: intra_subject_vs_fine_tuned_by_reps.png Graphic file (type png)
+<use intra_subject_vs_fine_tuned_by_reps.png>
+Package pdftex.def Info: intra_subject_vs_fine_tuned_by_reps.png  used on input line 107.
 (pdftex.def)             Requested size: 483.69687pt x 276.40207pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
-[3]
-<intra_subject_vs_fine_tuned_by_reps.png, id=130, 1011.78pt x 578.16pt>
-File: intra_subject_vs_fine_tuned_by_reps.png Graphic file (type png)
-<use intra_subject_vs_fine_tuned_by_reps.png>
-Package pdftex.def Info: intra_subject_vs_fine_tuned_by_reps.png  used on input line 97.
-(pdftex.def)             Requested size: 483.69687pt x 276.40207pt.
-
-
-[4 <./accuracy_by_approach_8_reps.png> <./intra_subject_vs_fine_tuned_by_reps.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 105--106
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 115--116
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 125--126
-
- []
-
-[5]
-Underfull \hbox (badness 10000) in paragraph at lines 157--158
-\T2A/cmr/m/n/10 model tem-po-ral dy-nam-ics ex-plic-itly (e.g.,
- []
-
-
-Underfull \hbox (badness 5817) in paragraph at lines 194--195
+[4 <./accuracy_by_approach_8_reps.png>] [5 <./intra_subject_vs_fine_tuned_by_reps.png>] [6]
+Underfull \hbox (badness 5817) in paragraph at lines 227--228
 []\T2A/cmr/m/n/8 Plux Biosig-nals, 2022. Where should I place my
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 194--195
+Underfull \hbox (badness 10000) in paragraph at lines 227--228
 \T2A/cmr/m/n/8 Elec-tromyo-g-ra-phy (EMG) elec-trodes? Avail-able at:
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 194--195
+Underfull \hbox (badness 10000) in paragraph at lines 227--228
 [][]$\T2A/cmtt/m/n/8 https : / / support . pluxbiosignals . com / knowledge-[]base /
  []
 
 
-Overfull \hbox (25.14522pt too wide) in paragraph at lines 194--195
+Overfull \hbox (25.14522pt too wide) in paragraph at lines 227--228
 \T2A/cmtt/m/n/8 where-[]should-[]i-[]place-[]my-[]electromyography-[]emg-[]electrodes/$[][]
  []
 
-[6]
-Underfull \hbox (badness 5878) in paragraph at lines 240--241
+[7]
+Underfull \hbox (badness 5878) in paragraph at lines 273--274
 []\T2A/cmr/m/n/8 Kolomiiets, B. Yu., 2025. *Code used for ex-per-
  []
 
 
-Underfull \hbox (badness 5203) in paragraph at lines 240--241
+Underfull \hbox (badness 5203) in paragraph at lines 273--274
 \T2A/cmr/m/n/8 i-ments pre-sented in this art-cile* [on-line]. GitHub.
  []
 
 )
 
-[7])
-
-Package caption Warning: Unused \captionsetup[table] on input line 49.
-See the caption package documentation for explanation.
-
-(./_metaradap-20NN.aux)
+[8]) (./_metaradap-20NN.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
@@ -1303,18 +1311,18 @@ Package rerunfilecheck Info: File `_metaradap-20NN.out' has not changed.
 (rerunfilecheck)             Checksum: 303EE2C88D3E980EAD4A3BFA91B1A30F;676.
  ) 
 Here is how much of TeX's memory you used:
- 14726 strings out of 473190
- 237451 string characters out of 5715800
- 658700 words of memory out of 5000000
- 37609 multiletter control sequences out of 15000+600000
- 580976 words of font info for 93 fonts, out of 8000000 for 9000
+ 15057 strings out of 473190
+ 242423 string characters out of 5715800
+ 659919 words of memory out of 5000000
+ 37915 multiletter control sequences out of 15000+600000
+ 583592 words of font info for 100 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,10n,79p,993b,748s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx2074.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0700.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0900.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti0700.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti0900.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sftt0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
-Output written on _metaradap-20NN.pdf (7 pages, 521438 bytes).
+ 75i,16n,79p,1086b,771s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx2074.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0700.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0900.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti0700.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti0900.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sftt0800.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
+Output written on _metaradap-20NN.pdf (8 pages, 560786 bytes).
 PDF statistics:
- 285 PDF objects out of 1000 (max. 8388607)
- 240 compressed objects within 3 object streams
- 45 named destinations out of 1000 (max. 500000)
- 79 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 303 PDF objects out of 1000 (max. 8388607)
+ 253 compressed objects within 3 object streams
+ 47 named destinations out of 1000 (max. 500000)
+ 84 words of extra memory for PDF output out of 10000 (max. 10000000)
 
